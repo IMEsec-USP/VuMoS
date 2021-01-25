@@ -18,6 +18,7 @@ e cole sua chave da API nele.
 ## Execução
 
 ```
+pip install -r requirements.txt
 python3 testescan.py <url_alvo>
 ```
 
