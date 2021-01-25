@@ -32,3 +32,6 @@
 
 # hidden files
 .*
+
+# tokens
+*token*
