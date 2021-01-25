@@ -1,0 +1,34 @@
+# git files
+*.git
+
+# executaveis
+*.exe
+*.bin
+*.bat
+*.out
+
+# outputs and inputs
+*out.txt
+*in.txt
+
+# arquivos intermediarios
+*.o
+
+# logs
+*__pycache__
+
+# compactados
+*.zip
+*.tar
+*.gz
+*.7z
+*.bz2
+
+# LibreOffice
+*.odt
+
+# java classes
+*.class
+
+# hidden files
+.*
