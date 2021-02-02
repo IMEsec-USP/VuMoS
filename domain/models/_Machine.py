@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from ._Host import Host
 
@@ -8,7 +8,7 @@ class Machine(object):
 				 id: int,
 				 ip: int,
 				 institute: str,
-				 hosts: List[Hosts],
+				 hosts: List[Host],
 				 external: 	Optional[bool] = False,
 				 updated_dttm: Optional[datetime] = datetime.now()
 		):

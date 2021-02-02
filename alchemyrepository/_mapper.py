@@ -19,6 +19,7 @@ from sqlalchemy.dialects.postgresql import \
 
 from domain.models import \
 	Host, \
+	Link, \
 	Machine
 
 Base = MetaData()
@@ -66,9 +67,9 @@ class Mapper(object):
 			"id": self.host.c.host_id,
 			"domain": self.host.c.domain,
 			"machines": relationship(Machine, secondary=association_table, back_populates="hosts")
-			"external": self.machine.c.external,
-			"institute": self.machine.c.institute,
-			"updated_dttm": self.machine.c.updated_dttm
+			"access_dttm": self.host.c.access_dttm,
+			"times_offline": self.host.c.times_offline,
+			"updated_dttm": self.host.c.updated_dttm
 		})
 
 		self.machine_host = Table(
@@ -92,5 +93,13 @@ class Mapper(object):
 			Column("updated_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
 			# schema=""
 		)
+		mapper(Link, self.link, properties={
+			"id": self.link.c.link_id,
+			"url": self.link.c.url,
+			"host": relationship(Host, remote_side=[self.link.c.host_id])
+			"access_dttm": self.link.c.access_dttm,
+			"times_offline": self.link.c.times_offline,
+			"updated_dttm": self.link.c.updated_dttm
+		})
 
 Mapper()

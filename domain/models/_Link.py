@@ -1,21 +1,23 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
-class Host(object):
+from ._Host import Host
+
+class Link(object):
 	def __init__(self,
 				 id: int,
-				 domain: str,
-				 machines: List["Machine"],
+				 url: str,
+				 host: Host,
 				 times_offline: Optional[int] = 0,
 				 access_dttm: Optional[datetime] = datetime.now(),
 				 updated_dttm: Optional[datetime] = datetime.now()
 		):
 		self.id = id
-		self.domain = domain
-		self.machines = machines
-		self.times_offline = times_offline
+		self.url = url
+		self.host = host
 		self.access_dttm = access_dttm
 		self.updated_dttm = updated_dttm
+		self.times_offline = times_offline
 
 	def __repr__(self):
 		return self.__str__()
