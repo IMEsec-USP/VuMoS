@@ -28,11 +28,20 @@ class Mapper(object):
 	def __init__(self):
 		self.machine = None
 		self.host = None
-		self.machine_domain = None
+		self.machine_host = None
 		self.link = None
 		self.map()
 
 	def map(self):
+		self.machine_host = Table(
+			"machine_host",
+			Base,
+			Column("host_id", Integer, ForeignKey("host.host_id"), nullable=False, primary_key=True),
+			Column("machine_id", Integer, ForeignKey("machine.machine_id"), nullable=False, primary_key=True),
+			Column("updated_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
+			# schema=""
+		)
+
 		self.machine = Table(
 			"machine",
 			Base,
@@ -46,7 +55,7 @@ class Mapper(object):
 		mapper(Machine, self.machine, properties={
 			"id": self.machine.c.machine_id,
 			"ip": self.machine.c.ip,
-			"hosts": relationship(Host, secondary=association_table, back_populates="machines"),
+			"hosts": relationship(Host, secondary=self.machine_host, back_populates="machines"),
 			"external": self.machine.c.external,
 			"institute": self.machine.c.institute,
 			"updated_dttm": self.machine.c.updated_dttm
@@ -66,20 +75,12 @@ class Mapper(object):
 		mapper(Host, self.host, properties={
 			"id": self.host.c.host_id,
 			"domain": self.host.c.domain,
-			"machines": relationship(Machine, secondary=association_table, back_populates="hosts")
+			"machines": relationship(Machine, secondary=self.machine_host, back_populates="hosts"),
 			"access_dttm": self.host.c.access_dttm,
 			"times_offline": self.host.c.times_offline,
 			"updated_dttm": self.host.c.updated_dttm
 		})
 
-		self.machine_host = Table(
-			"machine_host",
-			Base,
-			Column("host_id", Integer, ForeignKey(self.host.c.host_id), nullable=False, primary_key=True),
-			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=False, primary_key=True),
-			Column("updated_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
-			# schema=""
-		)
 		
 		self.link = Table(
 			"link",
@@ -96,7 +97,7 @@ class Mapper(object):
 		mapper(Link, self.link, properties={
 			"id": self.link.c.link_id,
 			"url": self.link.c.url,
-			"host": relationship(Host, remote_side=[self.link.c.host_id])
+			"host": relationship(Host, remote_side=self.link.c.host_id),
 			"access_dttm": self.link.c.access_dttm,
 			"times_offline": self.link.c.times_offline,
 			"updated_dttm": self.link.c.updated_dttm

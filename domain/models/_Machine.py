@@ -5,14 +5,13 @@ from ._Host import Host
 
 class Machine(object):
 	def __init__(self,
-				 id: int,
-				 ip: int,
-				 institute: str,
-				 hosts: List[Host],
+				 ip: str,
+				 hosts: Optional[List[Host]] = [],
+				 institute: Optional[str] = None,
 				 external: 	Optional[bool] = False,
 				 updated_dttm: Optional[datetime] = datetime.now()
 		):
-		self.id = id
+		self.id = None
 		self.ip = ip
 		self.institute = institute
 		self.hosts = hosts
