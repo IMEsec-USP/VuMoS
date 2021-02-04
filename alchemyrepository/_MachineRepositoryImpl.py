@@ -12,6 +12,10 @@ class MachineRepository(definition):
 				  machine_id: int) -> Machine:
 		return self.session.query(Machine).filter(Machine.id == machine_id).first()
 
+	def get_by_ip(self,
+				  machine_ip: str) -> Machine:
+		return self.session.query(Machine).filter(Machine.ip == machine_ip).first()
+
 	def add(self,
 			machine: Machine) -> Machine:
 		self.session.add(machine)

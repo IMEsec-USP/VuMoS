@@ -38,7 +38,7 @@ class Mapper(object):
 			Base,
 			Column("host_id", Integer, ForeignKey("host.host_id"), nullable=False, primary_key=True),
 			Column("machine_id", Integer, ForeignKey("machine.machine_id"), nullable=False, primary_key=True),
-			Column("updated_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
+			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			# schema=""
 		)
 
@@ -48,8 +48,8 @@ class Mapper(object):
 			Column("machine_id", Integer, primary_key=True),
 			Column("ip", INET, unique=True, nullable=False, index=True),
 			Column("institute", TEXT),
-			Column("external", Boolean, nullable=False, server_defalt='false'),
-			Column("updated_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
+			Column("external", Boolean, nullable=False, server_default='false'),
+			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			# schema=""
 		)
 		mapper(Machine, self.machine, properties={
@@ -66,16 +66,17 @@ class Mapper(object):
 			Base,
 			Column("host_id", Integer, primary_key=True),
 			Column("domain", String(128), unique=True, nullable=False, index=True),
-			Column("added_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
-			Column("access_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
-			Column("times_offline", SMALLINT, server_defalt='0', nullable=False),
-			Column("updated_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
+			Column("added_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("access_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("times_offline", SMALLINT, server_default='0', nullable=False),
+			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			# schema=""
 		)
 		mapper(Host, self.host, properties={
 			"id": self.host.c.host_id,
 			"domain": self.host.c.domain,
 			"machines": relationship(Machine, secondary=self.machine_host, back_populates="hosts"),
+			"added_dttm": self.host.c.added_dttm,
 			"access_dttm": self.host.c.access_dttm,
 			"times_offline": self.host.c.times_offline,
 			"updated_dttm": self.host.c.updated_dttm
@@ -88,10 +89,10 @@ class Mapper(object):
 			Column("link_id", Integer, primary_key=True),
 			Column("host_id", Integer, ForeignKey(self.host.c.host_id), nullable=False),
 			Column("url", String(128), unique=True, nullable=False, index=True),
-			Column("added_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
-			Column("access_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
-			Column("times_offline", SMALLINT, server_defalt='0', nullable=False),
-			Column("updated_dttm", TIMESTAMP, server_defalt='now()', nullable=False),
+			Column("added_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("access_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("times_offline", SMALLINT, server_default='0', nullable=False),
+			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			# schema=""
 		)
 		mapper(Link, self.link, properties={

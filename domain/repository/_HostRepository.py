@@ -1,21 +1,21 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from domain.models import Machine
+from domain.models import Host
 
-class MachineRepository(ABC):
+class HostRepository(ABC):
 
 	@abstractmethod
 	def get_by_id(self,
-				  machine_id: int) -> Machine:
+				  host_id: int) -> Host:
 		raise NotImplementedError()
 
 	@abstractmethod
-	def get_by_ip(self,
-				  machine_ip: str) -> Machine:
+	def get_by_domain(self,
+					  domain: str) -> Host:
 		raise NotImplementedError()
 
 	@abstractmethod
 	def add(self,
-			machine: Machine) -> Machine:
+			host: Host) -> Host:
 		raise NotImplementedError()
