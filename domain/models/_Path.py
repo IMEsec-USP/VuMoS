@@ -5,14 +5,13 @@ from ._Host import Host
 
 class Path(object):
 	def __init__(self,
-				 id: int,
 				 url: str,
 				 host: Host,
 				 times_offline: Optional[int] = 0,
 				 access_dttm: Optional[datetime] = datetime.now(),
 				 updated_dttm: Optional[datetime] = datetime.now()
 		):
-		self.id = id
+		self.id = None
 		self.url = url
 		self.host = host
 		self.access_dttm = access_dttm

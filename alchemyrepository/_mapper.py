@@ -98,7 +98,7 @@ class Mapper(object):
 		mapper(Path, self.path, properties={
 			"id": self.path.c.path_id,
 			"url": self.path.c.url,
-			"host": relationship(Host, remote_side=self.path.c.host_id),
+			"host": relationship(Host),
 			"access_dttm": self.path.c.access_dttm,
 			"times_offline": self.path.c.times_offline,
 			"updated_dttm": self.path.c.updated_dttm
