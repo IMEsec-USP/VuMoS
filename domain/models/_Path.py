@@ -3,7 +3,7 @@ from typing import Optional
 
 from ._Host import Host
 
-class Link(object):
+class Path(object):
 	def __init__(self,
 				 id: int,
 				 url: str,

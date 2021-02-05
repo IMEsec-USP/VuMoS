@@ -38,8 +38,8 @@ def upgrade():
 	)
 	op.create_index(op.f('ix_machine_ip'), 'machine', ['ip'], unique=True)
 	
-	op.create_table('link',
-		sa.Column('link_id', sa.Integer(), nullable=False),
+	op.create_table('path',
+		sa.Column('path_id', sa.Integer(), nullable=False),
 		sa.Column('host_id', sa.Integer(), nullable=False),
 		sa.Column('url', sa.String(length=128), nullable=False),
 		sa.Column('added_dttm', postgresql.TIMESTAMP(), nullable=False, server_default=sa.text('now()')),
@@ -47,9 +47,9 @@ def upgrade():
 		sa.Column('times_offline', sa.SMALLINT(), nullable=False, server_default='0'),
 		sa.Column('updated_dttm', postgresql.TIMESTAMP(), nullable=False, server_default=sa.text('now()')),
 		sa.ForeignKeyConstraint(['host_id'], ['host.host_id'], ),
-		sa.PrimaryKeyConstraint('link_id')
+		sa.PrimaryKeyConstraint('path_id')
 	)
-	op.create_index(op.f('ix_link_url'), 'link', ['url'], unique=True)
+	op.create_index(op.f('ix_path_url'), 'path', ['url'], unique=True)
 	
 	op.create_table('machine_host',
 		sa.Column('host_id', sa.Integer(), nullable=False),
@@ -63,8 +63,8 @@ def upgrade():
 
 def downgrade():
 	op.drop_table('machine_host')
-	op.drop_index(op.f('ix_link_url'), table_name='link')
-	op.drop_table('link')
+	op.drop_index(op.f('ix_path_url'), table_name='path')
+	op.drop_table('path')
 	op.drop_index(op.f('ix_machine_ip'), table_name='machine')
 	op.drop_table('machine')
 	op.drop_index(op.f('ix_host_domain'), table_name='host')

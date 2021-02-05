@@ -19,7 +19,7 @@ from sqlalchemy.dialects.postgresql import \
 
 from domain.models import \
 	Host, \
-	Link, \
+	Path, \
 	Machine
 
 Base = MetaData()
@@ -29,7 +29,7 @@ class Mapper(object):
 		self.machine = None
 		self.host = None
 		self.machine_host = None
-		self.link = None
+		self.path = None
 		self.map()
 
 	def map(self):
@@ -83,10 +83,10 @@ class Mapper(object):
 		})
 
 		
-		self.link = Table(
-			"link",
+		self.path = Table(
+			"path",
 			Base,
-			Column("link_id", Integer, primary_key=True),
+			Column("path_id", Integer, primary_key=True),
 			Column("host_id", Integer, ForeignKey(self.host.c.host_id), nullable=False),
 			Column("url", String(128), unique=True, nullable=False, index=True),
 			Column("added_dttm", TIMESTAMP, server_default='now()', nullable=False),
@@ -95,13 +95,13 @@ class Mapper(object):
 			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			# schema=""
 		)
-		mapper(Link, self.link, properties={
-			"id": self.link.c.link_id,
-			"url": self.link.c.url,
-			"host": relationship(Host, remote_side=self.link.c.host_id),
-			"access_dttm": self.link.c.access_dttm,
-			"times_offline": self.link.c.times_offline,
-			"updated_dttm": self.link.c.updated_dttm
+		mapper(Path, self.path, properties={
+			"id": self.path.c.path_id,
+			"url": self.path.c.url,
+			"host": relationship(Host, remote_side=self.path.c.host_id),
+			"access_dttm": self.path.c.access_dttm,
+			"times_offline": self.path.c.times_offline,
+			"updated_dttm": self.path.c.updated_dttm
 		})
 
 Mapper()
