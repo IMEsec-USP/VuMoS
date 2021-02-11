@@ -39,13 +39,13 @@ def upgrade():
 		-- permissions for fine-grained control.
 		grant select on audit.logged_actions to public;
 
-		create index logged_actions_schema_table_idx 
+		create index if not exists logged_actions_schema_table_idx 
 		on audit.logged_actions(((schema_name||'.'||table_name)::TEXT));
 
-		create index logged_actions_action_tstamp_idx 
+		create index if not exists logged_actions_action_tstamp_idx 
 		on audit.logged_actions(action_tstamp);
 
-		create index logged_actions_action_idx 
+		create index if not exists logged_actions_action_idx 
 		on audit.logged_actions(action);
 	""")
 
@@ -132,7 +132,9 @@ def upgrade():
 	op.create_table('path',
 		sa.Column('path_id', sa.Integer(), nullable=False),
 		sa.Column('host_id', sa.Integer(), nullable=False),
-		sa.Column('url', sa.String(length=128), nullable=False),
+		sa.Column('url', postgresql.TEXT(), nullable=False),
+		sa.Column('method', postgresql.TEXT(), nullable=False),
+		sa.Column('vars', postgresql.JSON()),
 		sa.Column('added_dttm', postgresql.TIMESTAMP(), nullable=False, server_default=sa.text('now()')),
 		sa.Column('access_dttm', postgresql.TIMESTAMP(), nullable=False, server_default=sa.text('now()')),
 		sa.Column('times_offline', sa.SMALLINT(), nullable=False, server_default='0'),

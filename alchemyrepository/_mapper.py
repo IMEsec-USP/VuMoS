@@ -14,7 +14,9 @@ from sqlalchemy.orm import \
 
 from sqlalchemy.dialects.postgresql import \
 	INET, \
+	JSON, \
 	SMALLINT, \
+	TEXT, \
 	TIMESTAMP
 
 from domain.models import \
@@ -88,7 +90,9 @@ class Mapper(object):
 			Base,
 			Column("path_id", Integer, primary_key=True),
 			Column("host_id", Integer, ForeignKey(self.host.c.host_id), nullable=False),
-			Column("url", String(128), unique=True, nullable=False, index=True),
+			Column("url", TEXT, unique=True, nullable=False, index=True),
+			Column("method", TEXT, nullable=False),
+			Column("vars", JSON),
 			Column("added_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			Column("access_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			Column("times_offline", SMALLINT, server_default='0', nullable=False),
@@ -99,6 +103,8 @@ class Mapper(object):
 			"id": self.path.c.path_id,
 			"url": self.path.c.url,
 			"host": relationship(Host),
+			"method": self.path.c.method,
+			"vars": self.path.c.vars,
 			"access_dttm": self.path.c.access_dttm,
 			"times_offline": self.path.c.times_offline,
 			"updated_dttm": self.path.c.updated_dttm
