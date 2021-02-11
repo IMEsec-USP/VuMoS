@@ -21,3 +21,8 @@ class PathRepository(definition):
 		self.session.add(path)
 		self.session.flush()
 		return path
+
+	def update(self,
+			   path: Path) -> Path:
+		self.session.flush()
+		return path

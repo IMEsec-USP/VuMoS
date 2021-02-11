@@ -21,3 +21,8 @@ class HostRepository(definition):
 		self.session.add(host)
 		self.session.flush()
 		return host
+	
+	def update(self,
+			   host: Host) -> Host:
+		self.session.flush()
+		return host

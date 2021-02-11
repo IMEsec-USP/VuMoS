@@ -21,3 +21,8 @@ class MachineRepository(definition):
 		self.session.add(machine)
 		self.session.flush()
 		return machine
+
+	def update(self,
+			   machine: Machine) -> Machine:
+		self.session.flush()
+		return machine

@@ -19,3 +19,9 @@ class HostRepository(ABC):
 	def add(self,
 			host: Host) -> Host:
 		raise NotImplementedError()
+
+	@abstractmethod
+	def update(self,
+			   host: Host) -> Host:
+		raise NotImplementedError()
+

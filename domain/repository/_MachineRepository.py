@@ -19,3 +19,8 @@ class MachineRepository(ABC):
 	def add(self,
 			machine: Machine) -> Machine:
 		raise NotImplementedError()
+
+	@abstractmethod
+	def update(self,
+			   machine: Machine) -> Machine:
+		raise NotImplementedError()
