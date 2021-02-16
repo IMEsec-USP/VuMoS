@@ -22,8 +22,11 @@ from sqlalchemy.dialects.postgresql import \
 
 from domain.models import \
 	Host, \
+	Machine, \
 	Path, \
-	Machine
+	Vulnerability, \
+	VulnerabilityStatusEnum, \
+	VulnerabilityType
 
 Base = MetaData()
 
@@ -113,7 +116,7 @@ class Mapper(object):
 			Base,
 			Column("vulnerability_id", Integer, primary_key=True),
 			Column("vulnerability_type_id", ForeignKey("vulnerability_type.vulnerability_type_id"), nullable=False),
-			Column("status", Enum("found", "confirmed", "solved", "false positive", name="vulnerability_status_enum"), nullable=False),
+			Column("status", Enum(VulnerabilityStatusEnum), nullable=False),
 			Column("found_by", TEXT, nullable=False),
 			Column("found_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			Column("confirmed_by", TEXT),
@@ -124,6 +127,20 @@ class Mapper(object):
 			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=False),
 			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
 		)
+		mapper(Vulnerability, self.vulnerability, properties={
+			"id": self.vulnerability.c.vulnerability_id,
+			"type": relationship(VulnerabilityType),
+			"status": self.vulnerability.c.status,
+			"found_by": self.vulnerability.c.found_by,
+			"found_dttm": self.vulnerability.c.found_dttm,
+			"confirmed_by": self.vulnerability.c.confirmed_by,
+			"confirmed_dttm": self.vulnerability.c.confirmed_dttm,
+			"solved_dttm": self.vulnerability.c.solved_dttm,
+			"host": relationship(Host),
+			"path": relationship(Path),
+			"machine": relationship(Machine),
+			"updated_dttm": self.vulnerability.c.updated_dttm
+		})
 
 		self.vulnerability_type = Table(
 			"vulnerability_type",
@@ -134,5 +151,12 @@ class Mapper(object):
 			Column("severity", SMALLINT, nullable=False, index=True),
 			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
 		)
+		mapper(VulnerabilityType, self.vulnerability_type, properties={
+			"id": self.vulnerability_type.c.vulnerability_type_id,
+			"name": self.vulnerability_type.c.name,
+			"description": self.vulnerability_type.c.description,
+			"severity": self.vulnerability_type.c.severity,
+			"updated_dttm": self.vulnerability_type.c.updated_dttm
+		})
 
 Mapper()
