@@ -1,5 +1,6 @@
 from sqlalchemy import \
 	Boolean, \
+	CheckConstraint, \
 	Column, \
 	Enum, \
 	ForeignKey, \
@@ -122,10 +123,16 @@ class Mapper(object):
 			Column("confirmed_by", TEXT),
 			Column("confirmed_dttm", TIMESTAMP),
 			Column("solved_dttm", TIMESTAMP),
-			Column("host_id", Integer, ForeignKey(self.host.c.host_id), nullable=False),
-			Column("path_id", Integer, ForeignKey(self.path.c.path_id), nullable=False),
-			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=False),
+			Column("host_id", Integer, ForeignKey(self.host.c.host_id), nullable=True),
+			Column("path_id", Integer, ForeignKey(self.path.c.path_id), nullable=True),
+			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=True),
 			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			CheckConstraint('''
+				( CASE WHEN host_id IS NULL THEN 0 ELSE 1 END
+				+ CASE WHEN path_id IS NULL THEN 0 ELSE 1 END
+				+ CASE WHEN machine_id IS NULL THEN 0 ELSE 1 END
+				) > 0'''
+			),
 		)
 		mapper(Vulnerability, self.vulnerability, properties={
 			"id": self.vulnerability.c.vulnerability_id,
