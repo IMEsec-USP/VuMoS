@@ -1,6 +1,8 @@
 from sqlalchemy import \
 	Boolean, \
+	CheckConstraint, \
 	Column, \
+	Enum, \
 	ForeignKey, \
 	Integer, \
 	MetaData, \
@@ -21,17 +23,22 @@ from sqlalchemy.dialects.postgresql import \
 
 from domain.models import \
 	Host, \
+	Machine, \
 	Path, \
-	Machine
+	Vulnerability, \
+	VulnerabilityStatusEnum, \
+	VulnerabilityType
 
 Base = MetaData()
 
 class Mapper(object):
 	def __init__(self):
-		self.machine = None
 		self.host = None
+		self.machine = None
 		self.machine_host = None
 		self.path = None
+		self.vulnerability = None
+		self.vulnerability_type = None
 		self.map()
 
 	def map(self):
@@ -41,27 +48,7 @@ class Mapper(object):
 			Column("host_id", Integer, ForeignKey("host.host_id"), nullable=False, primary_key=True),
 			Column("machine_id", Integer, ForeignKey("machine.machine_id"), nullable=False, primary_key=True),
 			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
-			# schema=""
 		)
-
-		self.machine = Table(
-			"machine",
-			Base,
-			Column("machine_id", Integer, primary_key=True),
-			Column("ip", INET, unique=True, nullable=False, index=True),
-			Column("institute", TEXT),
-			Column("external", Boolean, nullable=False, server_default='false'),
-			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
-			# schema=""
-		)
-		mapper(Machine, self.machine, properties={
-			"id": self.machine.c.machine_id,
-			"ip": self.machine.c.ip,
-			"hosts": relationship(Host, secondary=self.machine_host, back_populates="machines"),
-			"external": self.machine.c.external,
-			"institute": self.machine.c.institute,
-			"updated_dttm": self.machine.c.updated_dttm
-		})
 
 		self.host = Table(
 			"host",
@@ -72,7 +59,6 @@ class Mapper(object):
 			Column("access_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			Column("times_offline", SMALLINT, server_default='0', nullable=False),
 			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
-			# schema=""
 		)
 		mapper(Host, self.host, properties={
 			"id": self.host.c.host_id,
@@ -84,7 +70,24 @@ class Mapper(object):
 			"updated_dttm": self.host.c.updated_dttm
 		})
 
-		
+		self.machine = Table(
+			"machine",
+			Base,
+			Column("machine_id", Integer, primary_key=True),
+			Column("ip", INET, unique=True, nullable=False, index=True),
+			Column("institute", TEXT),
+			Column("external", Boolean, nullable=False, server_default='false'),
+			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+		)
+		mapper(Machine, self.machine, properties={
+			"id": self.machine.c.machine_id,
+			"ip": self.machine.c.ip,
+			"hosts": relationship(Host, secondary=self.machine_host, back_populates="machines"),
+			"external": self.machine.c.external,
+			"institute": self.machine.c.institute,
+			"updated_dttm": self.machine.c.updated_dttm
+		})
+
 		self.path = Table(
 			"path",
 			Base,
@@ -97,7 +100,6 @@ class Mapper(object):
 			Column("access_dttm", TIMESTAMP, server_default='now()', nullable=False),
 			Column("times_offline", SMALLINT, server_default='0', nullable=False),
 			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
-			# schema=""
 		)
 		mapper(Path, self.path, properties={
 			"id": self.path.c.path_id,
@@ -108,6 +110,60 @@ class Mapper(object):
 			"access_dttm": self.path.c.access_dttm,
 			"times_offline": self.path.c.times_offline,
 			"updated_dttm": self.path.c.updated_dttm
+		})
+
+		self.vulnerability = Table(
+			"vulnerability",
+			Base,
+			Column("vulnerability_id", Integer, primary_key=True),
+			Column("vulnerability_type_id", ForeignKey("vulnerability_type.vulnerability_type_id"), nullable=False),
+			Column("status", Enum(VulnerabilityStatusEnum), nullable=False),
+			Column("found_by", TEXT, nullable=False),
+			Column("found_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("confirmed_by", TEXT),
+			Column("confirmed_dttm", TIMESTAMP),
+			Column("solved_dttm", TIMESTAMP),
+			Column("host_id", Integer, ForeignKey(self.host.c.host_id), nullable=True),
+			Column("path_id", Integer, ForeignKey(self.path.c.path_id), nullable=True),
+			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=True),
+			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			CheckConstraint('''
+				( CASE WHEN host_id IS NULL THEN 0 ELSE 1 END
+				+ CASE WHEN path_id IS NULL THEN 0 ELSE 1 END
+				+ CASE WHEN machine_id IS NULL THEN 0 ELSE 1 END
+				) > 0'''
+			),
+		)
+		mapper(Vulnerability, self.vulnerability, properties={
+			"id": self.vulnerability.c.vulnerability_id,
+			"type": relationship(VulnerabilityType),
+			"status": self.vulnerability.c.status,
+			"found_by": self.vulnerability.c.found_by,
+			"found_dttm": self.vulnerability.c.found_dttm,
+			"confirmed_by": self.vulnerability.c.confirmed_by,
+			"confirmed_dttm": self.vulnerability.c.confirmed_dttm,
+			"solved_dttm": self.vulnerability.c.solved_dttm,
+			"host": relationship(Host),
+			"path": relationship(Path),
+			"machine": relationship(Machine),
+			"updated_dttm": self.vulnerability.c.updated_dttm
+		})
+
+		self.vulnerability_type = Table(
+			"vulnerability_type",
+			Base,
+			Column("vulnerability_type_id", Integer, primary_key=True),
+			Column("name", TEXT, unique=True, nullable=False, index=True),
+			Column("description", TEXT),
+			Column("severity", SMALLINT, nullable=False, index=True),
+			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+		)
+		mapper(VulnerabilityType, self.vulnerability_type, properties={
+			"id": self.vulnerability_type.c.vulnerability_type_id,
+			"name": self.vulnerability_type.c.name,
+			"description": self.vulnerability_type.c.description,
+			"severity": self.vulnerability_type.c.severity,
+			"updated_dttm": self.vulnerability_type.c.updated_dttm
 		})
 
 Mapper()
