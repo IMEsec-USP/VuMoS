@@ -5,6 +5,7 @@ import sys
 import time
 from zapv2 import ZAPv2
 from pprint import pprint
+import requests
 
 if len(sys.argv) != 2:
     print(f'USAGE: python3 {os.path.basename(__file__)} <target_url>')
@@ -83,6 +84,30 @@ with open("vulns.json", "w") as f:
     f.write('Alerts: ')
     pprint(zap.core.alerts(baseurl=target), stream = f)
 
-print('Done!')
+# Retrieve the alerts using paging in case there are lots of them
+start = 0
+pg = 5000
+alert_dict = {}
+alert_count = 0
+alerts = zap.alert.alerts(baseurl=target, start=start, count=pg)
+blacklist = [1,2]
+while len(alerts) > 0:
+    print('Reading ' + str(pg) + ' alerts from ' + str(start))
+    alert_count += len(alerts)
+    for alert in alerts:
+        plugin_id = alert.get('pluginId')
+        if plugin_id in blacklist:
+            continue
+        if alert.get('risk') == 'High':
+            print('HIGH ALERT HERE LOL')
+            continue
+        if alert.get('risk') == 'Informational':
+            # Ignore all info alerts - some of them may have been downgraded by security annotations
+            continue
+    start += pg
+    alerts = zap.alert.alerts(start=start, count=pg)
+print('Total number of alerts: ' + str(alert_count))
+
+print('Done!\nGenerating report...')
 
 

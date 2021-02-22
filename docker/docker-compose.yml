@@ -1,0 +1,45 @@
+# VuMoS docker compose file
+
+#version:
+
+networks:
+    vumos:
+
+volumes:
+    postgres-data:
+
+services:
+    postgres:
+        build:
+            context: ${CONTEXT_DIR_PATH}/postgres
+            dockerfile: Dockerfile
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASS}
+            - POSTGRES_DB=${DB_NAME}
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        networks:
+            - vumos
+    alembic:
+        build:
+            context: ${CONTEXT_DIR_PATH}/alembic
+            dockerfile: Dockerfile
+        volumes:
+            - ${SRC_PATH}/alembic:/home/alembic/alembic
+            - ${SRC_PATH}/commons:/home/alembic/alembic/commons
+        links: 
+            - postgres
+        depends-on:
+            - postgres
+
+
+        
+
+
+
+
+
+
