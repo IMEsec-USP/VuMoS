@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from domain.models import Path
-from domain.repository import PathRepository as definition
+from commons.domain.models import Path
+from commons.domain.repository import PathRepository as definition
 
 class PathRepository(definition):
 	def __init__(self,

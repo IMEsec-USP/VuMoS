@@ -5,12 +5,12 @@ from configparser import ConfigParser
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
-sys.path.append(os.getcwd())
+sys.path.append(os.path.dirname(os.getcwd()))
 
-from alchemyrepository import Base
+from commons.alchemyrepository import Base
 
 config_file = ConfigParser()
-config_file.read("config.ini")
+config_file.read("../commons/config.ini")
 
 
 # this is the Alembic Config object, which provides

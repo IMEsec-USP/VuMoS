@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from domain.models import Machine
+from commons.domain.models import Machine
 
 class MachineRepository(ABC):
 

@@ -1,6 +1,6 @@
 # VuMoS docker compose file
 
-#version:
+version: "3.8"
 
 networks:
     vumos:
@@ -11,7 +11,7 @@ volumes:
 services:
     postgres:
         build:
-            context: ${CONTEXT_DIR_PATH}/postgres
+            context: ${CONTEXT_PATH}/postgres
             dockerfile: Dockerfile
         environment:
             - POSTGRES_USER=${DB_USER}
@@ -23,23 +23,22 @@ services:
             - postgres-data:/var/lib/postgresql/data
         networks:
             - vumos
+
     alembic:
         build:
-            context: ${CONTEXT_DIR_PATH}/alembic
+            context: ${CONTEXT_PATH}/alembic
             dockerfile: Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
         volumes:
             - ${SRC_PATH}/alembic:/home/alembic/alembic
-            - ${SRC_PATH}/commons:/home/alembic/alembic/commons
+            - ${SRC_PATH}/commons:/home/alembic/commons
+            - ${CONTEXT_PATH}/alembic/docker-entrypoint.sh:/home/alembic/docker-entrypoint.sh
         links: 
             - postgres
-        depends-on:
+        depends_on:
             - postgres
-
-
-        
-
-
-
-
-
-
+        networks:
+            - vumos

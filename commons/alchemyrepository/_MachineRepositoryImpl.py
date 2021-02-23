@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from domain.models import Machine
-from domain.repository import MachineRepository as definition
+from commons.domain.models import Machine
+from commons.domain.repository import MachineRepository as definition
 
 class MachineRepository(definition):
 	def __init__(self,

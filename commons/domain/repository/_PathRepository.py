@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from domain.models import Path
+from commons.domain.models import Path
 
 class PathRepository(ABC):
 

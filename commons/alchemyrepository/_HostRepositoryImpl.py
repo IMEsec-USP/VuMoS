@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from domain.models import Host
-from domain.repository import HostRepository as definition
+from commons.domain.models import Host
+from commons.domain.repository import HostRepository as definition
 
 class HostRepository(definition):
 	def __init__(self,

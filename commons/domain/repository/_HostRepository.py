@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from domain.models import Host
+from commons.domain.models import Host
 
 class HostRepository(ABC):
 

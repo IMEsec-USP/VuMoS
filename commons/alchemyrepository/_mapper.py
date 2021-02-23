@@ -21,7 +21,7 @@ from sqlalchemy.dialects.postgresql import \
 	TEXT, \
 	TIMESTAMP
 
-from domain.models import \
+from commons.domain.models import \
 	Host, \
 	Machine, \
 	Path, \
