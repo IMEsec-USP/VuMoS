@@ -34,6 +34,7 @@ services:
             dockerfile: Dockerfile
         volumes:
             - ${SRC_PATH}/recon/amass/main.py:/home/amass/main.py
+            - ${SRC_PATH}/recon/amass/requirements.txt:/home/amass/requirements.txt
             - ${SRC_PATH}/recon/amass/scr:/home/amass/scr
             - ${SRC_PATH}/commons:/home/amass/commons
             - ${CONTEXT_PATH}/amass/docker-entrypoint.sh:/home/amass/docker-entrypoint.sh
