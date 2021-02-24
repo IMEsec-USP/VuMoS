@@ -15,6 +15,9 @@
 *.o
 
 # logs
+*.log
+
+# caches
 *__pycache__
 
 # compactados
