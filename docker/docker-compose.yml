@@ -9,21 +9,6 @@ volumes:
     postgres-data:
 
 services:
-    postgres:
-        build:
-            context: ${CONTEXT_PATH}/postgres
-            dockerfile: Dockerfile
-        environment:
-            - POSTGRES_USER=${DB_USER}
-            - POSTGRES_PASSWORD=${DB_PASS}
-            - POSTGRES_DB=${DB_NAME}
-        ports:
-            - "5432:5432"
-        volumes:
-            - postgres-data:/var/lib/postgresql/data
-        networks:
-            - vumos
-
     alembic:
         build:
             context: ${CONTEXT_PATH}/alembic
@@ -40,5 +25,36 @@ services:
             - postgres
         depends_on:
             - postgres
+        networks:
+            - vumos
+
+    amass:
+        build:
+            context: ${CONTEXT_PATH}/amass
+            dockerfile: Dockerfile
+        volumes:
+            - ${SRC_PATH}/recon/amass/main.py:/home/amass/main.py
+            - ${SRC_PATH}/recon/amass/requirements.txt:/home/amass/requirements.txt
+            - ${SRC_PATH}/recon/amass/scr:/home/amass/scr
+            - ${SRC_PATH}/commons:/home/amass/commons
+            - ${CONTEXT_PATH}/amass/docker-entrypoint.sh:/home/amass/docker-entrypoint.sh
+            - ${CONTEXT_PATH}/logs/amass:/home/amass/logs
+        depends_on:
+            - postgres
+        networks:
+            - vumos
+
+    postgres:
+        build:
+            context: ${CONTEXT_PATH}/postgres
+            dockerfile: Dockerfile
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASS}
+            - POSTGRES_DB=${DB_NAME}
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
         networks:
             - vumos

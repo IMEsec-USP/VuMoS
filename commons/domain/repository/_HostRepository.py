@@ -20,6 +20,12 @@ class HostRepository(ABC):
 			host: Host) -> Host:
 		raise NotImplementedError()
 
+	# save adding host will update machine_host relation, because it is easy for a host to look for the machines than the opposite
+	@abstractmethod
+	def safe_add(self,
+				 host: Host) -> Host:
+		raise NotImplementedError()
+
 	@abstractmethod
 	def update(self,
 			   host: Host) -> Host:
