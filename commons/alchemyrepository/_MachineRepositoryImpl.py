@@ -22,6 +22,16 @@ class MachineRepository(definition):
 		self.session.flush()
 		return machine
 
+	def safe_add(self,
+				 machine: Machine) -> Machine:
+		m = self.get_by_ip(machine.ip)
+		if m is None:
+			self.session.add(machine)
+		else :
+			machine = m
+		self.session.flush()
+		return machine
+
 	def update(self,
 			   machine: Machine) -> Machine:
 		self.session.flush()
