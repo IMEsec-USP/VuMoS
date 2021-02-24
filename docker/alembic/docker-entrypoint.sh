@@ -11,9 +11,9 @@ if [ -f installed_requirements.txt ]; then
   if [ "$DIFF" != "" ] 
   then
     echo "----- Dependencies modified. Reinstalling -----"
-  rm -rf *
-  pip install -r requirements.txt
-  mv requirements.txt installed_requirements.txt
+    pip freeze | xargs pip uninstall -y
+    pip install -r requirements.txt
+    mv requirements.txt installed_requirements.txt
   else
     echo "----- Dependencies not modified -----"
   fi
