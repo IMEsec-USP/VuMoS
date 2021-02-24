@@ -1,7 +1,4 @@
 #!/bin/bash
-echo "----- Image version: -----"
-cat ../version.txt
-
 cd /home/alembic/
 
 cp alembic/requirements.txt ./requirements.txt

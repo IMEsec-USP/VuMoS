@@ -6,4 +6,4 @@ RUN python3 -m ensurepip && \
 
 WORKDIR /home/alembic
 
-ENTRYPOINT ["/home/alembic/docker-entrypoint.sh"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
