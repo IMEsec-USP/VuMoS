@@ -6,23 +6,27 @@ from difflib import SequenceMatcher
 
 from commons.domain.models import \
 	Host, \
-	Machine
+	Machine, \
+	Path
 
 from commons.domain.repository import \
 	HostRepository, \
-	MachineRepository
+	MachineRepository, \
+	PathRepository
 
 class Controller(object):
 	def __init__(self,
 				 host_repository: HostRepository,
 				 machine_repository: MachineRepository,
+                                 path_repository: PathRepository,
 				 logger: Logger):
 		self.host_repository = host_repository
 		self.machine_repository = machine_repository
+		self.path_repository = path_repository
 		self.logger = logger
 
 	def execute(self):
-		with open("scr/targets.json", 'r') as f:
+		with open("src/targets.json", 'r') as f:
 			targets = json.loads(f.read())
 
 		for root in targets:
@@ -33,7 +37,9 @@ class Controller(object):
 			parameter = ["amass", "enum", "-src", "-noalts", "-d", root, "-json", OUTPUT_PATH, "-log", "logs/amass.log"]
 			stdout = subprocess.run(parameter, stdout=subprocess.PIPE).stdout.decode("utf-8")
 
-			test_requests = {}
+			self.logger.debug(f"-----------String de output do amass:-----------\n{stdout}\n------------------------------------------------")
+
+			test_requests_cache = {}
 			machines_cache = {}
 
 			with open(OUTPUT_PATH, "r") as result:
@@ -60,10 +66,10 @@ class Controller(object):
 					if subdomain != root:
 						domain = '.'.join(subdomain.split('.')[1:])
 						
-						base_request = test_requests.get(domain)
+						base_request = test_requests_cache.get(domain)
 						if base_request is None:
 							base_request = requests.get(f'http://asdfewcregonqwnsd.{domain}')
-							test_requests[domain] = base_request
+							test_requests_cache[domain] = base_request
 
 						try :
 							r = requests.get(f"http://{subdomain}")
@@ -75,6 +81,14 @@ class Controller(object):
 								if base_request.status_code != r.status_code or SequenceMatcher(None, base_request.content, r.content).ratio() < 0.8:
 									self.logger.debug(f"adding db_host to {subdomain}")
 									host = self.host_repository.safe_add(host)
+									path = Path(
+									        url=r.url,
+									        host=host,
+									        method='GET',
+									        vars={}
+								        )
+									path = self.path_repository.safe_add(path)
+
 						except requests.exceptions.RequestException:
 							pass
 					else:
@@ -87,8 +101,17 @@ class Controller(object):
 								)
 								self.logger.debug(f"adding root domain {subdomain} db")
 								host = self.host_repository.safe_add(host)
+								path = Path(
+								        url=r.url,
+								        host=host,
+								        method='GET',
+								        vars={}
+                                        )
+								path = self.path_repository.safe_add(path)
+								
 						except requests.exceptions.RequestException:
 							pass
+					
 
 					line = result.readline()
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 from commons.domain.models import Path
@@ -19,6 +20,20 @@ class PathRepository(definition):
 	def add(self,
 			path: Path) -> Path:
 		self.session.add(path)
+		self.session.flush()
+		return path
+	
+	def safe_add(self,
+				 path: Path) -> Path:
+		p = self.get_by_url(path.url)
+		if p is None:
+			self.session.add(path)
+		else:
+			p.access_dttm = datetime.now()
+			p.updated_dttm = datetime.now()
+			p.times_offline = 0
+			self.session.expunge(path)
+			path = p
 		self.session.flush()
 		return path
 

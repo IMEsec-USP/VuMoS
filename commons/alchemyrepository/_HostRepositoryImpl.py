@@ -32,8 +32,10 @@ class HostRepository(definition):
 			h.machines = host.machines
 			h.times_offline = 0
 			h.access_dttm = datetime.now()
+			h.updated_dttm = datetime.now()
 			self.session.expunge(host)
 			host = h
+
 		self.session.flush()
 		return host
 

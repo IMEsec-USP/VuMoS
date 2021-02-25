@@ -1,4 +1,3 @@
-FROM kalilinux/kali
-RUN ls -alFh
+FROM metasploitframework/metasploit-framework
 
 

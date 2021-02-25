@@ -6,9 +6,10 @@ from configparser import ConfigParser
 
 from commons.alchemyrepository import \
 	HostRepository, \
-	MachineRepository
+	MachineRepository, \
+	PathRepository
 
-from scr import Controller
+from src import Controller
 
 
 def main():
@@ -32,10 +33,12 @@ def main():
 
 	machine_repository = MachineRepository(session)
 	host_repository = HostRepository(session)
+	path_repository = PathRepository(session)
 
 	controller = Controller(
 		host_repository=host_repository,
 		machine_repository=machine_repository,
+		path_repository=path_repository,
 		logger=logger
 	)
 	controller.execute()
