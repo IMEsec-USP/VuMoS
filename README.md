@@ -1,26 +1,20 @@
-# RDB
+# VuMoS - USP's Vulnerability Monitoring System
 
-## Scanner de vulnerabilidades
+## Vulnerability scanning and assessment tool
 
-Antes de executar o arquivo, o OWASP ZAP deve estar rodando e a chave da API deve ser colocada
-num arquivo chamado `token` para que o script possa funcionar de maneira adequada.
+Developed by USP's [IMEsec](https://imesec.ime.usp.br/), VuMoS automates recon and OpSec testing in order to facilitate 
+vulnerability assessment and bug reporting within the [University of São Paulo](https://www5.usp.br/)'s  IT infrastructure.
 
-OWASP ZAP: <https://github.com/zaproxy>
+## Usage
 
-Para pegar sua chave da API:
-
-Vá no menu de configurações, denotado pelo símbolo de roda dentada na barra superior.
-No menu __API__, copie sua chave que estará numa caixa de texto.
-
-Na pasta obtida após clonar esse repositório, crie um arquivo chamado __token__
-e cole sua chave da API nele.
-
-## Execução
-
+To run the PostgreSQL Database:
 ```
-pip install -r requirements.txt
-python3 testescan.py <url_alvo>
+docker-compose up -d postgres
 ```
 
-As URLs obtidas pela spider serão salvas num arquivo `spider_results.txt`, e as possíveis
-vulnerabilidades serão salvas num arquivo JSON de nome vulns.json.
+And to run the subsequent recon/scanning VuMoS modules: 
+```
+docker-compose up -d vumos
+```
+
+
