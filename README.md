@@ -14,7 +14,7 @@ docker-compose up -d postgres
 
 And to run the subsequent recon/scanning VuMoS modules: 
 ```
-docker-compose up -d vumos
+docker-compose up 
 ```
 
 
