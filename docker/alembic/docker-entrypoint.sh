@@ -33,6 +33,10 @@ export DB_PORT=5432
 export DB_USER=${DB_USER}
 export DB_PASS=${DB_PASS}
 export DB_NAME=${DB_NAME}
+echo "Waiting for db..."
+
+sleep 5
+
 echo "Migrating " $DB_USER-$DB_NAME
 alembic upgrade head
 if [ $? -eq 0 ]

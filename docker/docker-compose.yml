@@ -1,12 +1,9 @@
 # VuMoS docker compose file
 
-version: "3.8"
+version: "3"
 
 networks:
     vumos:
-
-volumes:
-    postgres-data:
 
 services:
     alembic:
@@ -55,6 +52,6 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - postgres-data:/var/lib/postgresql/data
+            - ./data/postgresql:/var/lib/postgresql/data
         networks:
             - vumos
