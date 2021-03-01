@@ -1,4 +1,5 @@
 from ._mapper import Base
+from ._ConfigRepositoryImpl import ConfigRepository
 from ._HostRepositoryImpl import HostRepository
 from ._MachineRepositoryImpl import MachineRepository
 from ._PathRepositoryImpl import PathRepository

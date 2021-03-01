@@ -41,3 +41,7 @@ class PathRepository(definition):
 			   path: Path) -> Path:
 		self.session.flush()
 		return path
+
+	def delete(self,
+			   path: Path):
+		self.session.delete(path)

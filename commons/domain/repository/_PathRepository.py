@@ -29,3 +29,8 @@ class PathRepository(ABC):
 	def update(self,
 			   path: Path) -> Path:
 		raise NotImplementedError()
+
+	@abstractmethod
+	def delete(self,
+			   path: Path) -> Path:
+		raise NotImplementedError()
