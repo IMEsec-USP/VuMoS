@@ -35,7 +35,7 @@ until PGPASSWORD=$DB_PASS psql -h "$DB_HOST" -U "postgres" -c '\q'; do
 done
 
 echo "Migrating " $DB_USER-$DB_NAME
-alembic revision --autogenerate
+alembic upgrade head
 if [ $? -eq 0 ]
 then
   echo "Successfully migrated " $DB_USER-$DB_NAME
