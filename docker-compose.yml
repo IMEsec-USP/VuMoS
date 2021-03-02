@@ -31,7 +31,7 @@ services:
         build:
             context: ${CONTEXT_PATH}/amass
             dockerfile: Dockerfile
-    environment:
+        environment:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
             - DB_NAME=${DB_NAME}
@@ -44,6 +44,28 @@ services:
             - ${SRC_PATH}/commons:/home/amass/commons
             - ${CONTEXT_PATH}/amass/docker-entrypoint.sh:/home/amass/docker-entrypoint.sh
             - ${CONTEXT_PATH}/logs/amass:/home/amass/logs
+        depends_on:
+            - postgres
+        networks:
+            - vumos
+
+    nmap:
+        build:
+            context: ${CONTEXT_PATH}/nmap
+            dockerfile: Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+        volumes:
+            - ${SRC_PATH}/recon/nmap/main.py:/home/nmap/main.py
+            - ${SRC_PATH}/recon/nmap/requirements.txt:/home/nmap/requirements.txt
+            - ${SRC_PATH}/commons:/home/nmap/commons
+            - ${SRC_PATH}/recon/nmap/src:/home/nmap/src
+            - ${CONTEXT_PATH}/nmap/docker-entrypoint.sh:/home/nmap/docker-entrypoint.sh
+            - ${CONTEXT_PATH}/logs/nmap:/home/nmap/logs
         depends_on:
             - postgres
         networks:

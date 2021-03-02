@@ -13,7 +13,7 @@ class ConfigRepository(definition):
 				  config_id: int) -> Config:
 		return self.session.query(Config).filter(Config.id == config_id).first()
 
-	def get_by_domain(self,
+	def get_by_name(self,
 					  name: str) -> Config:
 		return self.session.query(Config).filter(Config.name == name).first()
 

@@ -22,8 +22,10 @@ from sqlalchemy.dialects.postgresql import \
 	TIMESTAMP
 
 from commons.domain.models import \
+	Config, \
 	Host, \
 	Machine, \
+	Nmap, \
 	Path, \
 	Vulnerability, \
 	VulnerabilityStatusEnum, \
@@ -56,10 +58,16 @@ class Mapper(object):
 			"config",
 			Base,
 			Column("config_id", Integer, primary_key=True),
-			Column("name", TEXT, index=True, unique=True),
+			Column("name", TEXT, nullable=False, index=True, unique=True),
 			Column("config", JSON, server_default='{}', nullable=False),
 			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False)
 		)
+		mapper(Config, self.config, properties={
+			"id": self.config.c.config_id,
+			"name": self.config.c.name,
+			"config": self.config.c.config,
+			"updated_dttm": self.config.c.updated_dttm
+		})
 
 
 		self.host = Table(
@@ -106,8 +114,13 @@ class Mapper(object):
 			Base,
 			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=False, primary_key=True),
 			Column("output", JSON),
-			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='to_timestamp(0)', nullable=False),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='to_timestamp(0)', nullable=False, index=True),
 		)
+		mapper(Nmap, self.nmap, properties={
+			"machine": relationship(Machine, cascade="all, delete"),
+			"output": self.nmap.c.output,
+			"updated_dttm": self.nmap.c.updated_dttm
+		})
 
 		self.path = Table(
 			"path",

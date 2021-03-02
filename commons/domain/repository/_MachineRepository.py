@@ -33,5 +33,5 @@ class MachineRepository(ABC):
 
 	@abstractmethod
 	def delete(self,
-			   machine: Machine) -> Machine:
+			   machine: Machine):
 		raise NotImplementedError()

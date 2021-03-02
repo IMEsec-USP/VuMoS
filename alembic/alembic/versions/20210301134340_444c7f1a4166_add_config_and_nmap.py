@@ -35,9 +35,10 @@ def upgrade():
 		sa.Column('machine_id', sa.Integer(), nullable=False),
 		sa.Column('output', postgresql.JSON(astext_type=sa.Text()), nullable=True),
 		sa.Column('updated_dttm', postgresql.TIMESTAMP(), server_default=sa.text('to_timestamp(0)'), nullable=False),
-		sa.ForeignKeyConstraint(['machine_id'], ['machine.machine_id'], ),
+		sa.ForeignKeyConstraint(['machine_id'], ['machine.machine_id'], ondelete="CASCADE"),
 		sa.PrimaryKeyConstraint('machine_id')
 	)
+	op.create_index(op.f('ix_nmap_updated_dttm'), 'nmap', ['updated_dttm'])
 	op.execute("""
 		CREATE TRIGGER host_audit
 		AFTER INSERT OR UPDATE OR DELETE ON nmap

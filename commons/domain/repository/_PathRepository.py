@@ -22,8 +22,8 @@ class PathRepository(ABC):
 	
 	@abstractmethod
 	def safe_add(self,
-	                path: Path) -> Path:
-	        raise NotImplementedError()
+					path: Path) -> Path:
+			raise NotImplementedError()
 
 	@abstractmethod
 	def update(self,
@@ -32,5 +32,5 @@ class PathRepository(ABC):
 
 	@abstractmethod
 	def delete(self,
-			   path: Path) -> Path:
+			   path: Path):
 		raise NotImplementedError()
