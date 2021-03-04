@@ -31,7 +31,7 @@ services:
         build:
             context: ${CONTEXT_PATH}/amass
             dockerfile: Dockerfile
-    environment:
+        environment:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
             - DB_NAME=${DB_NAME}
