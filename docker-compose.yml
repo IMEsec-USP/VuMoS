@@ -14,11 +14,13 @@ services:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
             - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
         volumes:
             - ${SRC_PATH}/alembic:/home/alembic/alembic
             - ${SRC_PATH}/commons:/home/alembic/commons
             - ${CONTEXT_PATH}/alembic/docker-entrypoint.sh:/home/alembic/docker-entrypoint.sh
-        links: 
+        links:
             - postgres
         depends_on:
             - postgres
@@ -29,6 +31,12 @@ services:
         build:
             context: ${CONTEXT_PATH}/amass
             dockerfile: Dockerfile
+    environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
         volumes:
             - ${SRC_PATH}/recon/amass/main.py:/home/amass/main.py
             - ${SRC_PATH}/recon/amass/requirements.txt:/home/amass/requirements.txt

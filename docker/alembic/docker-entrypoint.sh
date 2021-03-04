@@ -27,15 +27,12 @@ echo "Start processing"
 
 cd /home/alembic/alembic/
 
-
-export DB_HOST=postgres
-export DB_PORT=5432
-export DB_USER=${DB_USER}
-export DB_PASS=${DB_PASS}
-export DB_NAME=${DB_NAME}
 echo "Waiting for db..."
 
-sleep 5
+until PGPASSWORD=$DB_PASS psql -h "$DB_HOST" -U "postgres" -c '\q'; do
+  >&2 echo "Postgres is unavailable - sleeping"
+  sleep 1
+done
 
 echo "Migrating " $DB_USER-$DB_NAME
 alembic upgrade head

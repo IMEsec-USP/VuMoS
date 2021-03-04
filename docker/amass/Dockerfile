@@ -8,6 +8,7 @@ RUN apk add --update python3 && \
 	pip3 install --upgrade pip
 
 RUN apk add postgresql-dev
+RUN apk add postgresql-client
 
 RUN apk add libc-dev && \
 	apk add python3-dev && \

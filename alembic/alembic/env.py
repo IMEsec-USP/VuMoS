@@ -1,16 +1,12 @@
 import os
 import sys
 from alembic import context
-from configparser import ConfigParser
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 sys.path.append(os.path.dirname(os.getcwd()))
 
 from commons.alchemyrepository import Base
-
-config_file = ConfigParser()
-config_file.read("../commons/config.ini")
 
 
 # this is the Alembic Config object, which provides
@@ -65,11 +61,11 @@ def run_migrations_online():
 
 	"""
 	section = config.config_ini_section
-	config.set_section_option(section, "DB_USER", config_file["DB"]["user"])
-	config.set_section_option(section, "DB_PASS", config_file["DB"]["pass"])
-	config.set_section_option(section, "DB_HOST", config_file["DB"]["host"])
-	config.set_section_option(section, "DB_PORT", config_file["DB"]["port"])
-	config.set_section_option(section, "DB_NAME", config_file["DB"]["name"])
+	config.set_section_option(section, "DB_USER", os.environ.get("DB_USER"))
+	config.set_section_option(section, "DB_PASS", os.environ.get("DB_PASS"))
+	config.set_section_option(section, "DB_NAME", os.environ.get("DB_NAME"))
+	config.set_section_option(section, "DB_HOST", os.environ.get("DB_HOST"))
+	config.set_section_option(section, "DB_PORT", os.environ.get("DB_PORT"))
 	connectable = engine_from_config(
 		config.get_section(config.config_ini_section),
 		prefix="sqlalchemy.",
