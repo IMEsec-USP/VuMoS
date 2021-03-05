@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Optional
 
 from commons.domain.models import \
 	Machine, \
@@ -18,7 +18,9 @@ class NmapRepository(ABC):
 		raise NotImplementedError()
 
 	@abstractmethod
-	def get_next(self) -> Nmap:
+	def get_next(self, 
+				 weeks: Optional[int] = 0,
+				 days: Optional[int] = 0) -> Nmap:
 		raise NotImplementedError()
 
 	@abstractmethod

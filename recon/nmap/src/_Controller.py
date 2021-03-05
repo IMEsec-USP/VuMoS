@@ -33,11 +33,13 @@ class Controller(object):
 		
 		self.nmap_repository.add_machines_to_nmap()
 
-		nmap = self.nmap_repository.get_next()
+		redo_in = self.config["redo_in"]
+
+		nmap = self.nmap_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
 
 		if nmap is None:
 			self.logger.error(f"no target to scan")
-			return False
+			return True
 
 		self.logger.info(f"starting nmap to {nmap.machine.ip}")
 
@@ -54,4 +56,4 @@ class Controller(object):
 
 		nmap = self.nmap_repository.update(nmap)
 
-		return True
+		return False

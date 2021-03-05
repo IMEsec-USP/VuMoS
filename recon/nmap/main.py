@@ -2,6 +2,7 @@ import os
 import logging
 import sqlalchemy
 import sqlalchemy.orm
+from time import sleep
 
 from commons.alchemyrepository import \
 	ConfigRepository, \
@@ -44,24 +45,29 @@ def main():
 			name="Nmap",
 			config={
 				"run":"nmap -p- -sV --version-all -A -sC -f -O -oX {outputfile} -Pn {target}",
-				"resume": "nmap --resume {outputfile}",
+				"redo_in": {
+					"weeks": 1,
+					"days": 0
+				},
 				"outputfile": "nmap.xml"
 			}
 		)
 		config = config_repository.add(config)
 
 	controller = Controller(
-	    config= config.config,
+		config= config.config,
 		machine_repository=machine_repository,
 		nmap_repository=nmap_repository,
 		logger=logger
 	)
 
-	loop = True
-	while loop:
-		loop = controller.execute()
+	while True:
+		wait = controller.execute()
 
 		session.commit()
+
+		if wait:
+			sleep(60*60)
 
 if __name__ == '__main__':
 	main()

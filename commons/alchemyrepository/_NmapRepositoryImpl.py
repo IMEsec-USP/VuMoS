@@ -1,5 +1,6 @@
+from typing import Optional
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from commons.domain.models import Nmap, Machine
 from commons.domain.repository import NmapRepository as definition
@@ -18,8 +19,12 @@ class NmapRepository(definition):
 		return self.session.query(Nmap).join(Machine, Nmap.machine_id == Machine.id)\
 			.filter(Machine.ip == machine_ip).first()
 
-	def get_next(self) -> Nmap:
-		return self.session.query(Nmap).order_by(Nmap.updated_dttm).limit(1).first()
+	def get_next(self, 
+				 weeks: Optional[int] = 0,
+				 days: Optional[int] = 0) -> Nmap:
+		return self.session.query(Nmap)\
+			.filter(Nmap.updated_dttm <= datetime.now() - timedelta(weeks=weeks, days=days))\
+			.order_by(Nmap.updated_dttm).limit(1).first()
 
 	def add_machines_to_nmap(self):
 		self.session.execute("""
