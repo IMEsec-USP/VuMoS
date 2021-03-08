@@ -32,7 +32,6 @@ class PathRepository(definition):
 			p.access_dttm = datetime.now()
 			p.updated_dttm = datetime.now()
 			p.times_offline = 0
-			self.session.expunge(path)
 			path = p
 		self.session.flush()
 		return path

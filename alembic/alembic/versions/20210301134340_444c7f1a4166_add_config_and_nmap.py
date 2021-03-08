@@ -31,17 +31,20 @@ def upgrade():
 		FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
 	""")
 
+	op.execute("CREATE SCHEMA scans")
+
 	op.create_table('nmap',
 		sa.Column('machine_id', sa.Integer(), nullable=False),
 		sa.Column('output', postgresql.JSON(astext_type=sa.Text()), nullable=True),
 		sa.Column('updated_dttm', postgresql.TIMESTAMP(), server_default=sa.text('to_timestamp(0)'), nullable=False),
 		sa.ForeignKeyConstraint(['machine_id'], ['machine.machine_id'], ondelete="CASCADE"),
-		sa.PrimaryKeyConstraint('machine_id')
+		sa.PrimaryKeyConstraint('machine_id'),
+		schema='scans'
 	)
-	op.create_index(op.f('ix_nmap_updated_dttm'), 'nmap', ['updated_dttm'])
+	op.create_index(op.f('ix_nmap_updated_dttm'), 'nmap', ['updated_dttm'], schema='scans')
 	op.execute("""
 		CREATE TRIGGER host_audit
-		AFTER INSERT OR UPDATE OR DELETE ON nmap
+		AFTER INSERT OR UPDATE OR DELETE ON scans.nmap
 		FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
 	""")
 
@@ -50,5 +53,6 @@ def upgrade():
 
 def downgrade():
 	op.drop_column('machine', 'added_dttm')
-	op.drop_table('nmap')
+	op.drop_table('nmap', schema='scans')
+	op.execute("DROP SCHEMA scans")
 	op.drop_table('config')

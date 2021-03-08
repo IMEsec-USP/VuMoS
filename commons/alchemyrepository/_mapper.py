@@ -115,6 +115,7 @@ class Mapper(object):
 			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=False, primary_key=True),
 			Column("output", JSON),
 			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='to_timestamp(0)', nullable=False, index=True),
+			schema="scans"
 		)
 		mapper(Nmap, self.nmap, properties={
 			"machine": relationship(Machine, cascade="all, delete"),
