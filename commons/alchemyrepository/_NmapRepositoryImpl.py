@@ -28,12 +28,12 @@ class NmapRepository(definition):
 
 	def add_machines_to_nmap(self):
 		self.session.execute("""
-			INSERT into nmap (machine_id)
+			INSERT into scans.nmap (machine_id)
 			select 
 				m.machine_id
 			from 
 				machine m 
-			left join nmap n 
+			left join scans.nmap n 
 				ON m.machine_id = n.machine_id 
 			where n.machine_id is null
 		""")
