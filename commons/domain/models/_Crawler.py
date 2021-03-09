@@ -1,12 +1,14 @@
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Optional
+
+from ._Path import Path
 
 class Crawler(object):
 	def __init__(self,
 				 path: "Path",
 				 updated_dttm: Optional[datetime] = None
 		):
-		self.machine = machine
+		self.path = path
 		self.updated_dttm = updated_dttm
 
 	def __repr__(self):

@@ -1,5 +1,6 @@
 from ._mapper import Base
 from ._ConfigRepositoryImpl import ConfigRepository
+from ._CrawlerRepositoryImpl import CrawlerRepository
 from ._HostRepositoryImpl import HostRepository
 from ._MachineRepositoryImpl import MachineRepository
 from ._NmapRepositoryImpl import NmapRepository

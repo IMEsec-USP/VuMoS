@@ -20,7 +20,7 @@ def upgrade():
 	op.create_table('crawler',
 		sa.Column('path_id', sa.Integer(), nullable=False),
 		sa.Column('updated_dttm', postgresql.TIMESTAMP(), server_default=sa.text('to_timestamp(0)'), nullable=False),
-		sa.ForeignKeyConstraint(['path_id'], ['path.path_id'], ),
+		sa.ForeignKeyConstraint(['path_id'], ['path.path_id'], ondelete="CASCADE"),
 		sa.PrimaryKeyConstraint('path_id'),
 		schema='scans'
 	)
@@ -35,4 +35,3 @@ def upgrade():
 
 def downgrade():
 	op.drop_table('crawler', schema='scans')
-

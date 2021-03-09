@@ -1,4 +1,5 @@
 from ._ConfigRepository import ConfigRepository
+from ._CrawlerRepository import CrawlerRepository
 from ._HostRepository import HostRepository
 from ._MachineRepository import MachineRepository
 from ._NmapRepository import NmapRepository
