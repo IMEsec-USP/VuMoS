@@ -8,7 +8,8 @@ from sqlalchemy import \
 	MetaData, \
 	String, \
 	Table, \
-	TEXT
+	TEXT, \
+	text
 
 from sqlalchemy.orm import \
 	mapper, \
@@ -23,6 +24,7 @@ from sqlalchemy.dialects.postgresql import \
 
 from commons.domain.models import \
 	Config, \
+	Crawler, \
 	Host, \
 	Machine, \
 	Nmap, \
@@ -36,6 +38,7 @@ Base = MetaData()
 class Mapper(object):
 	def __init__(self):
 		self.config = None
+		self.crawler = None
 		self.host = None
 		self.machine = None
 		self.machine_host = None
@@ -69,6 +72,17 @@ class Mapper(object):
 			"updated_dttm": self.config.c.updated_dttm
 		})
 
+		self.crawler = Table(
+			"crawler",
+			Base,
+			Column("path_id", Integer, ForeignKey("path.path_id"), nullable=False, primary_key=True),
+			Column("updated_dttm", TIMESTAMP(), server_default=text('to_timestamp(0)'), nullable=False, index=True),
+			schema="scans"
+		)
+		mapper(Crawler, self.crawler, properties={
+			"path": relationship(Path, cascade="all, delete"),
+			"updated_dttm": self.crawler.c.updated_dttm
+		})
 
 		self.host = Table(
 			"host",
@@ -114,7 +128,7 @@ class Mapper(object):
 			Base,
 			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=False, primary_key=True),
 			Column("output", JSON),
-			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='to_timestamp(0)', nullable=False, index=True),
+			Column("updated_dttm", TIMESTAMP(), server_default=text('to_timestamp(0)'), nullable=False, index=True),
 			schema="scans"
 		)
 		mapper(Nmap, self.nmap, properties={
