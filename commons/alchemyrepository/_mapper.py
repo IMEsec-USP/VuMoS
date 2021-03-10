@@ -22,8 +22,10 @@ from sqlalchemy.dialects.postgresql import \
 	TIMESTAMP
 
 from commons.domain.models import \
+	Config, \
 	Host, \
 	Machine, \
+	Nmap, \
 	Path, \
 	Vulnerability, \
 	VulnerabilityStatusEnum, \
@@ -33,9 +35,11 @@ Base = MetaData()
 
 class Mapper(object):
 	def __init__(self):
+		self.config = None
 		self.host = None
 		self.machine = None
 		self.machine_host = None
+		self.nmap = None
 		self.path = None
 		self.vulnerability = None
 		self.vulnerability_type = None
@@ -47,18 +51,34 @@ class Mapper(object):
 			Base,
 			Column("host_id", Integer, ForeignKey("host.host_id"), nullable=False, primary_key=True),
 			Column("machine_id", Integer, ForeignKey("machine.machine_id"), nullable=False, primary_key=True),
-			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 		)
+
+		self.config = Table(
+			"config",
+			Base,
+			Column("config_id", Integer, primary_key=True),
+			Column("name", TEXT, nullable=False, index=True, unique=True),
+			Column("config", JSON, server_default='{}', nullable=False),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False)
+		)
+		mapper(Config, self.config, properties={
+			"id": self.config.c.config_id,
+			"name": self.config.c.name,
+			"config": self.config.c.config,
+			"updated_dttm": self.config.c.updated_dttm
+		})
+
 
 		self.host = Table(
 			"host",
 			Base,
 			Column("host_id", Integer, primary_key=True),
 			Column("domain", String(128), unique=True, nullable=False, index=True),
-			Column("added_dttm", TIMESTAMP, server_default='now()', nullable=False),
-			Column("access_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("added_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
+			Column("access_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 			Column("times_offline", SMALLINT, server_default='0', nullable=False),
-			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 		)
 		mapper(Host, self.host, properties={
 			"id": self.host.c.host_id,
@@ -77,7 +97,8 @@ class Mapper(object):
 			Column("ip", INET, unique=True, nullable=False, index=True),
 			Column("institute", TEXT),
 			Column("external", Boolean, nullable=False, server_default='false'),
-			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("added_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 		)
 		mapper(Machine, self.machine, properties={
 			"id": self.machine.c.machine_id,
@@ -88,6 +109,20 @@ class Mapper(object):
 			"updated_dttm": self.machine.c.updated_dttm
 		})
 
+		self.nmap = Table(
+			"nmap",
+			Base,
+			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=False, primary_key=True),
+			Column("output", JSON),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='to_timestamp(0)', nullable=False, index=True),
+			schema="scans"
+		)
+		mapper(Nmap, self.nmap, properties={
+			"machine": relationship(Machine, cascade="all, delete"),
+			"output": self.nmap.c.output,
+			"updated_dttm": self.nmap.c.updated_dttm
+		})
+
 		self.path = Table(
 			"path",
 			Base,
@@ -96,10 +131,10 @@ class Mapper(object):
 			Column("url", TEXT, unique=True, nullable=False, index=True),
 			Column("method", TEXT, nullable=False),
 			Column("vars", JSON),
-			Column("added_dttm", TIMESTAMP, server_default='now()', nullable=False),
-			Column("access_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("added_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
+			Column("access_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 			Column("times_offline", SMALLINT, server_default='0', nullable=False),
-			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 		)
 		mapper(Path, self.path, properties={
 			"id": self.path.c.path_id,
@@ -119,14 +154,14 @@ class Mapper(object):
 			Column("vulnerability_type_id", ForeignKey("vulnerability_type.vulnerability_type_id"), nullable=False),
 			Column("status", Enum(VulnerabilityStatusEnum), nullable=False),
 			Column("found_by", TEXT, nullable=False),
-			Column("found_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("found_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 			Column("confirmed_by", TEXT),
-			Column("confirmed_dttm", TIMESTAMP),
-			Column("solved_dttm", TIMESTAMP),
+			Column("confirmed_dttm", TIMESTAMP(timezone=True)),
+			Column("solved_dttm", TIMESTAMP(timezone=True)),
 			Column("host_id", Integer, ForeignKey(self.host.c.host_id), nullable=True),
 			Column("path_id", Integer, ForeignKey(self.path.c.path_id), nullable=True),
 			Column("machine_id", Integer, ForeignKey(self.machine.c.machine_id), nullable=True),
-			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 			CheckConstraint('''
 				( CASE WHEN host_id IS NULL THEN 0 ELSE 1 END
 				+ CASE WHEN path_id IS NULL THEN 0 ELSE 1 END
@@ -156,7 +191,7 @@ class Mapper(object):
 			Column("name", TEXT, unique=True, nullable=False, index=True),
 			Column("description", TEXT),
 			Column("severity", SMALLINT, nullable=False, index=True),
-			Column("updated_dttm", TIMESTAMP, server_default='now()', nullable=False),
+			Column("updated_dttm", TIMESTAMP(timezone=True), server_default='now()', nullable=False),
 		)
 		mapper(VulnerabilityType, self.vulnerability_type, properties={
 			"id": self.vulnerability_type.c.vulnerability_type_id,

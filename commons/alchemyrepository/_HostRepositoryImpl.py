@@ -43,3 +43,7 @@ class HostRepository(definition):
 			   host: Host) -> Host:
 		self.session.flush()
 		return host
+
+	def delete(self,
+			   host: Host):
+		self.session.delete(host)

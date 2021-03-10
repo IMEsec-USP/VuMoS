@@ -3,7 +3,6 @@ import logging
 import sqlalchemy
 import sqlalchemy.orm
 
-
 from commons.alchemyrepository import \
 	HostRepository, \
 	MachineRepository, \

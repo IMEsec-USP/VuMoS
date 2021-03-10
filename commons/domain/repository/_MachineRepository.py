@@ -30,3 +30,8 @@ class MachineRepository(ABC):
 	def update(self,
 			   machine: Machine) -> Machine:
 		raise NotImplementedError()
+
+	@abstractmethod
+	def delete(self,
+			   machine: Machine):
+		raise NotImplementedError()

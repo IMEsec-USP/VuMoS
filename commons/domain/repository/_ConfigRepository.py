@@ -1,36 +1,32 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from commons.domain.models import Path
+from commons.domain.models import Config
 
-class PathRepository(ABC):
+class ConfigRepository(ABC):
 
 	@abstractmethod
 	def get_by_id(self,
-				  path_id: int) -> Path:
+				  config_id: int) -> Config:
 		raise NotImplementedError()
 
 	@abstractmethod
-	def get_by_url(self,
-				   url: str) -> Path:
+	def get_by_name(self,
+					  name: str) -> Config:
 		raise NotImplementedError()
 
 	@abstractmethod
 	def add(self,
-			path: Path) -> Path:
+			host: Config) -> Config:
 		raise NotImplementedError()
-	
+
 	@abstractmethod
 	def safe_add(self,
-					path: Path) -> Path:
-			raise NotImplementedError()
+				 host: Config) -> Config:
+		raise NotImplementedError()
 
 	@abstractmethod
 	def update(self,
-			   path: Path) -> Path:
+			   host: Config) -> Config:
 		raise NotImplementedError()
 
-	@abstractmethod
-	def delete(self,
-			   path: Path):
-		raise NotImplementedError()

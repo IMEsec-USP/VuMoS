@@ -36,3 +36,7 @@ class MachineRepository(definition):
 			   machine: Machine) -> Machine:
 		self.session.flush()
 		return machine
+
+	def delete(self,
+			   machine: Machine):
+		self.session.delete(machine)

@@ -30,4 +30,9 @@ class HostRepository(ABC):
 	def update(self,
 			   host: Host) -> Host:
 		raise NotImplementedError()
+	
+	@abstractmethod
+	def delete(self,
+			   host: Host):
+		raise NotImplementedError()
 
