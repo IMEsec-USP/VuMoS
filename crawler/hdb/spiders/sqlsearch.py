@@ -86,12 +86,11 @@ class HDBSpider(CrawlSpider):
 			self.db_session.commit()
 
 	def parse(self, response):
-		out = {}
-		out["url"] = response.url
-		out["sqlmap"] = []
+		
 		machine = Machine(ip=str(response.ip_address))
 		machine = self.machine_repository.safe_add(machine)
 		for form in response.css('form'):
+			
 			extracted_stuff = {
 				'inputs': [
 					{
@@ -104,13 +103,12 @@ class HDBSpider(CrawlSpider):
 				'action': form.xpath('@action').extract_first(),
 				'method': form.xpath('@method').extract_first(),
 
-			}
-
+				}
+			
 			method = extracted_stuff["method"] if extracted_stuff["method"] else "get"
 
 			if extracted_stuff["action"] and extracted_stuff["inputs"]:
 				resolved_action = response.urljoin(extracted_stuff["action"])
-				
 				host = Host(
 					domain=urlparse(resolved_action).netloc,
 					machines=[machine]
@@ -126,17 +124,28 @@ class HDBSpider(CrawlSpider):
 
 		for link in self.dynlink_extractor.extract_links(response):
 			link_base = link.url.split('?')[0]
-
 			host = Host(
 				domain=urlparse(link.url).netloc,
 				machines=[machine]
 			)
 			host = self.host_repository.safe_add(host)
+			link = link.url.split('?')[1:]
+			var = []
+			for l in link:
+				entries = l.split("&")
+				for entry in entries:
+					v = entry.split("=")
+					var.append({
+						"name": v[0],
+						"value": v[1]
+					})
+
 			path = Path(
 				url=link_base,
 				host=host,
 				method='get',
-				vars=link.url.split('?')[1:]
+				vars=var
 			)
 			path = self.path_repository.safe_add(path)
 
+		self.db_session.commit()
