@@ -49,6 +49,21 @@ services:
         networks:
             - vumos
 
+    crawler:
+        build:
+            context: ${SRC_PATH}
+            dockerfile: ${SRC_PATH}/crawler/Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+        depends_on:
+            - postgres
+        networks:
+            - vumos
+
     nmap:
         build:
             context: ${CONTEXT_PATH}/nmap

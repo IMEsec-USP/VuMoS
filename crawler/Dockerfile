@@ -1,13 +1,22 @@
 FROM python:3.7
 
-COPY hdb /app/hdb
+COPY crawler/Pipfile crawler/Pipfile.lock crawler/scrapy.cfg /app/
 
 WORKDIR /app
-
-COPY Pipfile Pipfile.lock scrapy.cfg /app/
 
 RUN pip install pipenv
 
 RUN pipenv install --system --deploy
 
-CMD ["python", "-m", "scrapy", "crawl", "sqlsearch", "-o", "/dev/stdout:json"]
+RUN apt-get update -y
+RUN apt-get install postgresql-client -y
+
+COPY commons /app/commons
+
+RUN pip install -r commons/requirements.txt
+
+COPY crawler/docker-entrypoint.sh /app/
+
+COPY crawler/hdb /app/hdb
+
+ENTRYPOINT ["./docker-entrypoint.sh"]

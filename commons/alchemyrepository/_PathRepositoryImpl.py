@@ -29,9 +29,8 @@ class PathRepository(definition):
 		if p is None:
 			self.session.add(path)
 		else:
-			p.access_dttm = datetime.now()
+			p.vars = path.vars
 			p.updated_dttm = datetime.now()
-			p.times_offline = 0
 			path = p
 		self.session.flush()
 		return path

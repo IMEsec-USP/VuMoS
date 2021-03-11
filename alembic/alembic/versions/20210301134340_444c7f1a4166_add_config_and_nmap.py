@@ -41,7 +41,7 @@ def upgrade():
 		sa.PrimaryKeyConstraint('machine_id'),
 		schema='scans'
 	)
-	op.create_index(op.f('ix_nmap_updated_dttm'), 'nmap', ['updated_dttm'], schema='scans')
+	op.create_index(op.f('ix_scans_nmap_updated_dttm'), 'nmap', ['updated_dttm'], schema='scans')
 	op.execute("""
 		CREATE TRIGGER host_audit
 		AFTER INSERT OR UPDATE OR DELETE ON scans.nmap
