@@ -100,3 +100,20 @@ services:
             - ./data/postgresql:/var/lib/postgresql/data
         networks:
             - vumos
+
+    sqlmap:
+        build:
+            context: ${SRC_PATH}
+            dockerfile: ${SRC_PATH}/sqlmap/Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+        volumes:
+            - ${CONTEXT_PATH}/logs/sqlmap:/home/sqlmap/logs
+        depends_on:
+            - postgres
+        networks:
+            - vumos
