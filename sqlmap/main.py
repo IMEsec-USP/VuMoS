@@ -36,7 +36,6 @@ def main():
 
 	config_repository = ConfigRepository(session)
 	machine_repository = MachineRepository(session)
-	nmap_repository = NmapRepository(session)
 
 	config = config_repository.get_by_name("Sqlmap")
 	if config is None:
@@ -56,7 +55,6 @@ def main():
 	controller = Controller(
 		config= config.config,
 		machine_repository=machine_repository,
-		nmap_repository=nmap_repository,
 		logger=logger
 	)
 
