@@ -1,4 +1,5 @@
 from sqlalchemy import \
+	Boolean, \
 	Column, \
 	ForeignKey, \
 	Integer, \
@@ -10,20 +11,22 @@ from sqlalchemy.orm import \
 	relationship
 
 from sqlalchemy.dialects.postgresql import \
-	JSON, \
+	JSONB, \
 	TIMESTAMP
 
 from commons.domain.models import \
 	Crawler, \
 	Machine, \
 	Nmap, \
-	Path
+	Path, \
+	Sqlmap
 
 class ScansMapper(object):
 	def __init__(self, Base):
 		self.Base = Base
 		self.crawler = None
 		self.nmap = None
+		self.sqlmap = None
 		self.map()
 
 	def map(self):
@@ -43,7 +46,7 @@ class ScansMapper(object):
 			"nmap",
 			self.Base,
 			Column("machine_id", Integer, ForeignKey("machine.machine_id"), nullable=False, primary_key=True),
-			Column("output", JSON),
+			Column("output", JSONB),
 			Column("updated_dttm", TIMESTAMP(), server_default=text('to_timestamp(0)'), nullable=False, index=True),
 			schema="scans"
 		)
@@ -51,4 +54,20 @@ class ScansMapper(object):
 			"machine": relationship(Machine, cascade="all, delete"),
 			"output": self.nmap.c.output,
 			"updated_dttm": self.nmap.c.updated_dttm
+		})
+
+		self.sqlmap = Table(
+			"sqlmap",
+			self.Base,
+			Column("path", Integer, ForeignKey("path.path_id"), nullable=False, primary_key=True),
+			Column("clean", Boolean, nullable=False, server_default=text("false")),
+			Column("output", JSONB),
+			Column("updated_dttm", TIMESTAMP(), server_default=text('to_timestamp(0)'), nullable=False, index=True),
+			schema="scans"
+		)
+		mapper(Sqlmap, self.sqlmap, properties={
+			"machine": relationship(Path, cascade="all, delete"),
+			"clean": self.sqlmap.c.clean,
+			"output": self.sqlmap.c.output,
+			"updated_dttm": self.sqlmap.c.updated_dttm
 		})
