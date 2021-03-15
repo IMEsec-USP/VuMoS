@@ -71,7 +71,7 @@ def main():
 			session.commit()
 		elif status == 1:
 			logger.warning(f"no target to scan")
-			seconds = config["sleep"]["seconds"] + 60*config["sleep"]["minutes"] + 3600*config["sleep"]["hours"]
+			seconds = config.config["sleep"]["seconds"] + 60*config.config["sleep"]["minutes"] + 3600*config.config["sleep"]["hours"]
 			sleep(seconds)
 		else:
 			break
