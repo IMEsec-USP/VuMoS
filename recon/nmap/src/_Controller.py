@@ -1,16 +1,9 @@
-import os
-import json
 import subprocess
 from typing import Dict
 from logging import Logger
 from datetime import datetime
 from xmljson import badgerfish as bf
 from xml.etree.ElementTree import fromstring
-
-from commons.domain.models import \
-	Host, \
-	Machine, \
-	Path
 
 from commons.domain.repository import \
 	MachineRepository, \
@@ -27,7 +20,7 @@ class Controller(object):
 		self.nmap_repository = nmap_repository
 		self.logger = logger
 
-	def execute(self):
+	def run(self):
 		self.logger.debug(f"config = {self.config}")
 		outputfile = self.config["outputfile"]
 		
@@ -38,13 +31,12 @@ class Controller(object):
 		nmap = self.nmap_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
 
 		if nmap is None:
-			self.logger.error(f"no target to scan")
-			return True
+			return 1
 
 		self.logger.info(f"starting nmap to {nmap.machine.ip}")
 
 		parameter = self.config["run"].format(outputfile=outputfile, target=nmap.machine.ip).split()
-		stdout = subprocess.run(parameter).stdout
+		subprocess.run(parameter).stdout
 
 		with open(outputfile, 'r') as f:
 			output = bf.data(fromstring(f.read()))
@@ -56,4 +48,4 @@ class Controller(object):
 
 		nmap = self.nmap_repository.update(nmap)
 
-		return False
+		return 0

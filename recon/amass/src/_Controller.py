@@ -3,6 +3,7 @@ import requests
 import subprocess
 from logging import Logger
 from difflib import SequenceMatcher
+from typing import List
 
 from commons.domain.models import \
     Host, \
@@ -19,17 +20,16 @@ class Controller(object):
                  host_repository: HostRepository,
                  machine_repository: MachineRepository,
                  path_repository: PathRepository,
+                 targets: List[str],
                  logger: Logger):
         self.host_repository = host_repository
         self.machine_repository = machine_repository
         self.path_repository = path_repository
+        self.targets = targets
         self.logger = logger
 
     def execute(self):
-        with open("src/targets.json", 'r') as f:
-            targets = json.loads(f.read())
-
-        for root in targets:
+        for root in self.targets:
 
             self.logger.info(f"running amass to {root}")
 
@@ -113,4 +113,3 @@ class Controller(object):
                             pass
 
                     line = result.readline()
-

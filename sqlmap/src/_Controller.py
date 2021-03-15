@@ -1,6 +1,4 @@
 import re
-import json
-from time import sleep
 from logging import Logger
 from datetime import datetime
 from subprocess import run, PIPE
@@ -36,9 +34,6 @@ class Controller(object):
 		sqlmap = self.sqlmap_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
 
 		if sqlmap is None:
-			self.logger.error(f"no target to scan")
-			seconds = config["sleep"]["seconds"] + 60*config["sleep"]["minutes"] + 3600*config["sleep"]["hours"]
-			sleep(seconds)
 			return 1
 
 		self.logger.info(f"starting sqlmap to {sqlmap.path.url}")
