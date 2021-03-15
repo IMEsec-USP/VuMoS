@@ -66,7 +66,7 @@ class ScansMapper(object):
 			schema="scans"
 		)
 		mapper(Sqlmap, self.sqlmap, properties={
-			"machine": relationship(Path, cascade="all, delete"),
+			"path": relationship(Path, cascade="all, delete"),
 			"clean": self.sqlmap.c.clean,
 			"output": self.sqlmap.c.output,
 			"updated_dttm": self.sqlmap.c.updated_dttm

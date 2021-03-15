@@ -1,13 +1,11 @@
 import os
 import logging
 import sqlalchemy
-import sqlalchemy.orm
-from time import sleep
 
 from commons.alchemyrepository import \
 	ConfigRepository, \
-	MachineRepository, \
-	NmapRepository
+	VulnerabilityRepository, \
+	SqlmapRepository
 
 from commons.domain.models import Config
 
@@ -35,7 +33,15 @@ def main():
 	session = session_maker(autoflush=False)
 
 	config_repository = ConfigRepository(session)
-	machine_repository = MachineRepository(session)
+	vulnerability_repository = VulnerabilityRepository(session)
+	sqlmap_repository = SqlmapRepository(session)
+
+	controller = Controller(
+		config_repository= config_repository,
+		vulnerability_repository=vulnerability_repository,
+		sqlmap_repository=sqlmap_repository,
+		logger=logger
+	)
 
 	config = config_repository.get_by_name("Sqlmap")
 	if config is None:
@@ -43,6 +49,11 @@ def main():
 		config = Config(
 			name="Sqlmap",
 			config={
+				"sleep": {
+					"seconds": 0,
+					"minutes": 0,
+					"hours": 1
+				},
 				"redo_in": {
 					"weeks": 1,
 					"days": 0
@@ -51,20 +62,14 @@ def main():
 			}
 		)
 		config = config_repository.add(config)
-
-	controller = Controller(
-		config= config.config,
-		machine_repository=machine_repository,
-		logger=logger
-	)
-
-	while True:
-		wait = controller.execute()
-
 		session.commit()
 
-		if wait:
-			sleep(60*60)
+	while True:
+		status = controller.run()
+		if status == 0:
+			session.commit()
+		else:
+			break
 
 if __name__ == '__main__':
 	main()

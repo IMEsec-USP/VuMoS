@@ -1,59 +1,93 @@
-import os
+import re
 import json
-import subprocess
-from typing import Dict
+from time import sleep
 from logging import Logger
 from datetime import datetime
-from xmljson import badgerfish as bf
-from xml.etree.ElementTree import fromstring
+from subprocess import run, PIPE
 
 from commons.domain.models import \
-	Host, \
-	Machine, \
-	Path
+	Sqlmap
 
 from commons.domain.repository import \
-	MachineRepository, \
-	NmapRepository
+	ConfigRepository, \
+	SqlmapRepository, \
+	VulnerabilityRepository
 
 class Controller(object):
 	def __init__(self,
-				 config: Dict,
-				 machine_repository: MachineRepository,
-				 nmap_repository: NmapRepository,
+				 config_repository: ConfigRepository,
+				 vulnerability_repository: VulnerabilityRepository,
+				 sqlmap_repository: SqlmapRepository,
 				 logger: Logger):
-		self.config = config
-		self.machine_repository = machine_repository
-		self.nmap_repository = nmap_repository
+		self.config_repository = config_repository
+		self.vulnerability_repository = vulnerability_repository
+		self.sqlmap_repository = sqlmap_repository
 		self.logger = logger
 
-	def execute(self):
-		self.logger.debug(f"config = {self.config}")
-		outputfile = self.config["outputfile"]
+	def run(self):
+		config = self.config_repository.get_by_name("Sqlmap").config
+
+		self.logger.debug(f"config = {config}")
 		
-		self.nmap_repository.add_machines_to_nmap()
+		self.sqlmap_repository.add_paths_to_sqlmap()
 
-		redo_in = self.config["redo_in"]
+		redo_in = config["redo_in"]
 
-		nmap = self.nmap_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
+		sqlmap = self.sqlmap_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
 
-		if nmap is None:
+		if sqlmap is None:
 			self.logger.error(f"no target to scan")
-			return True
+			seconds = config["sleep"]["seconds"] + 60*config["sleep"]["minutes"] + 3600*config["sleep"]["hours"]
+			sleep(seconds)
+			return 1
 
-		self.logger.info(f"starting nmap to {nmap.machine.ip}")
+		self.logger.info(f"starting sqlmap to {sqlmap.path.url}")
 
-		parameter = self.config["run"].format(outputfile=outputfile, target=nmap.machine.ip).split()
-		stdout = subprocess.run(parameter).stdout
+		self.run_sqlmap(sqlmap)
+		return 0
 
-		with open(outputfile, 'r') as f:
-			output = bf.data(fromstring(f.read()))
-
-		self.logger.info("saving")
-
-		nmap.output = output
-		nmap.updated_dttm = datetime.now()
-
-		nmap = self.nmap_repository.update(nmap)
-
-		return False
+	def run_sqlmap(self, sqlmap: Sqlmap):
+		entry = sqlmap.path
+		sqlmap_command = ['sqlmap', '-u']
+		sqlmap_urlstring = entry.url+'?'
+		for var in entry.vars:
+			if not 'type' in var: # if there is no type, its a querystring url
+				sqlmap_urlstring += f"{var['name']}={var['value'] if var['value'] else 'a'}&"
+		sqlmap_command.append(sqlmap_urlstring[:-1])
+		sqlmap_command.append(f'--method={entry.method.lower()}')
+		if entry.method.lower() != 'get':
+			sqlmap_datastring = '--data='
+			for var in entry.vars:
+				if 'type' in var:
+					sqlmap_datastring += f"{var['name']}={var['value'] if var['value'] else 'a'}&"
+			sqlmap_command.append(sqlmap_datastring[:-1])
+		
+		sqlmap_command.append('--threads=1')
+		sqlmap_command.append('--level=5')
+		sqlmap_command.append('--smart')
+		sqlmap_command.append('--technique=BEUSTQ')
+		sqlmap_command.append('--batch')
+		sqlmap_command.append('--disable-coloring')
+		result = run(sqlmap_command, stdout=PIPE)
+		
+		if b'all tested parameters do not appear to be injectable.' in result.stdout:
+			sqlmap.clear = True
+			sqlmap.updated_dttm = datetime.now()
+		else:
+			injectable_str = result.stdout.split(b'\n---\n')[1].decode()
+			parameter_reg = re.search(r'(\s*Parameter: )(.+)( \((.+)\))', injectable_str.split('\n')[0])
+			output = {
+				"parameter": parameter_reg[2],
+				"method": parameter_reg[4],
+				"techniques": [],
+			}
+			techniques_str = injectable_str.split('\n\n')
+			for technique in techniques_str:
+				output['techniques'].append({
+					"type": re.search(r'(\s+Type: )(.+)', technique)[2],
+					"title": re.search(r'(\s+Title: )(.+)', technique)[2],
+					"payload": re.search(r'(\s+Payload: )(.+)', technique)[2],
+				})
+			sqlmap.output = output
+			sqlmap.updated_dttm = datetime.now()
+		self.sqlmap_repository.update(sqlmap)
