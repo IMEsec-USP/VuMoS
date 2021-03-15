@@ -1,6 +1,9 @@
 # git files
 *.git
 
+# db data
+data/*
+
 # executaveis
 *.exe
 *.bin
@@ -15,6 +18,9 @@
 *.o
 
 # logs
+*.log
+
+# caches
 *__pycache__
 
 # compactados
@@ -32,3 +38,9 @@
 
 # hidden files
 .*
+
+# tokens
+*token*
+
+# config
+config.ini

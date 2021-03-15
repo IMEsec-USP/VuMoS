@@ -1,0 +1,19 @@
+FROM caffix/amass as build
+
+RUN mkdir /home/amass
+
+RUN apk add --update python3 && \
+	ln -sf python3 /usr/bin/python && \
+	python3 -m ensurepip && \
+	pip3 install --upgrade pip
+
+RUN apk add postgresql-dev
+RUN apk add postgresql-client
+
+RUN apk add libc-dev && \
+	apk add python3-dev && \
+	apk add gcc
+
+WORKDIR /home/amass
+
+ENTRYPOINT ["/home/amass/docker-entrypoint.sh"]

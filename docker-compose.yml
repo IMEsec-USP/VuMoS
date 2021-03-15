@@ -1,0 +1,119 @@
+# VuMoS docker compose file
+
+version: "3"
+
+networks:
+    vumos:
+
+services:
+    alembic:
+        build:
+            context: ${CONTEXT_PATH}/alembic
+            dockerfile: Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+        volumes:
+            - ${SRC_PATH}/alembic:/home/alembic/alembic
+            - ${SRC_PATH}/commons:/home/alembic/commons
+            - ${CONTEXT_PATH}/alembic/docker-entrypoint.sh:/home/alembic/docker-entrypoint.sh
+        links:
+            - postgres
+        depends_on:
+            - postgres
+        networks:
+            - vumos
+
+    amass:
+        build:
+            context: ${CONTEXT_PATH}/amass
+            dockerfile: Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+        volumes:
+            - ${SRC_PATH}/recon/amass/main.py:/home/amass/main.py
+            - ${SRC_PATH}/recon/amass/requirements.txt:/home/amass/requirements.txt
+            - ${SRC_PATH}/recon/amass/src:/home/amass/src
+            - ${SRC_PATH}/commons:/home/amass/commons
+            - ${CONTEXT_PATH}/amass/docker-entrypoint.sh:/home/amass/docker-entrypoint.sh
+            - ${CONTEXT_PATH}/logs/amass:/home/amass/logs
+        depends_on:
+            - postgres
+        networks:
+            - vumos
+
+    crawler:
+        build:
+            context: ${SRC_PATH}
+            dockerfile: ${SRC_PATH}/crawler/Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+        depends_on:
+            - postgres
+        networks:
+            - vumos
+
+    nmap:
+        build:
+            context: ${CONTEXT_PATH}/nmap
+            dockerfile: Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+        volumes:
+            - ${SRC_PATH}/recon/nmap/main.py:/home/nmap/main.py
+            - ${SRC_PATH}/recon/nmap/requirements.txt:/home/nmap/requirements.txt
+            - ${SRC_PATH}/commons:/home/nmap/commons
+            - ${SRC_PATH}/recon/nmap/src:/home/nmap/src
+            - ${CONTEXT_PATH}/nmap/docker-entrypoint.sh:/home/nmap/docker-entrypoint.sh
+            - ${CONTEXT_PATH}/logs/nmap:/home/nmap/logs
+        depends_on:
+            - postgres
+        networks:
+            - vumos
+
+    postgres:
+        build:
+            context: ${CONTEXT_PATH}/postgres
+            dockerfile: Dockerfile
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASS}
+            - POSTGRES_DB=${DB_NAME}
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./data/postgresql:/var/lib/postgresql/data
+        networks:
+            - vumos
+
+    sqlmap:
+        build:
+            context: ${SRC_PATH}
+            dockerfile: ${SRC_PATH}/sqlmap/Dockerfile
+        environment:
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+        volumes:
+            - ${CONTEXT_PATH}/logs/sqlmap:/home/sqlmap/logs
+        depends_on:
+            - postgres
+        networks:
+            - vumos
