@@ -1,4 +1,4 @@
-from ._mapper import Base
+from .mapper import Base
 from ._ConfigRepositoryImpl import ConfigRepository
 from ._CrawlerRepositoryImpl import CrawlerRepository
 from ._HostRepositoryImpl import HostRepository
