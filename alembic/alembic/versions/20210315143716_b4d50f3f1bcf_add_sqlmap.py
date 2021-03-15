@@ -18,12 +18,12 @@ depends_on = None
 
 def upgrade():
 	op.create_table('sqlmap',
-		sa.Column('path', sa.Integer(), nullable=False),
+		sa.Column('path_id', sa.Integer(), nullable=False),
 		sa.Column('clean', sa.Boolean(), server_default=sa.text('false'), nullable=False),
 		sa.Column('output', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
 		sa.Column('updated_dttm', postgresql.TIMESTAMP(), server_default=sa.text('to_timestamp(0)'), nullable=False),
-		sa.ForeignKeyConstraint(['path'], ['path.path_id'], ondelete="CASCADE" ),
-		sa.PrimaryKeyConstraint('path'),
+		sa.ForeignKeyConstraint(['path_id'], ['path.path_id'], ondelete="CASCADE" ),
+		sa.PrimaryKeyConstraint('path_id'),
 		schema='scans'
 	)
 	op.create_index(op.f('ix_scans_sqlmap_updated_dttm'), 'sqlmap', ['updated_dttm'], unique=False, schema='scans')

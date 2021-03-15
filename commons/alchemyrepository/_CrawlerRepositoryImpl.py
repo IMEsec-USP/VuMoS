@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 
@@ -15,9 +15,9 @@ class CrawlerRepository(definition):
 		return self.session.query(Crawler).filter(Crawler.path == path).first()
 
 	def get_by_host(self,
-					host: Host) -> Crawler:
+					host: Host) -> List[Crawler]:
 		return self.session.query(Crawler).join(Path, Crawler.path_id == Path.id)\
-			.filter(Path.host == host).first()
+			.filter(Path.host == host).all()
 
 	def get_by_url(self,
 				   url: str) -> Crawler:
@@ -25,9 +25,9 @@ class CrawlerRepository(definition):
 			.filter(Path.url == url).first()
 
 	def get_by_domain(self,
-					  domain: str) -> Crawler:
+					  domain: str) -> List[Crawler]:
 		return self.session.query(Crawler).join(Path, Crawler.path_id == Path.id)\
-			.join(Host, Path.host_id == Path.id).filter(Host.domain == domain).first()
+			.join(Host, Path.host_id == Path.id).filter(Host.domain == domain).all()
 
 	def get_next(self, 
 				 weeks: Optional[int] = 0,

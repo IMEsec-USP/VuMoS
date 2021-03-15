@@ -59,7 +59,7 @@ class ScansMapper(object):
 		self.sqlmap = Table(
 			"sqlmap",
 			self.Base,
-			Column("path", Integer, ForeignKey("path.path_id"), nullable=False, primary_key=True),
+			Column("path_id", Integer, ForeignKey("path.path_id"), nullable=False, primary_key=True),
 			Column("clean", Boolean, nullable=False, server_default=text("false")),
 			Column("output", JSONB),
 			Column("updated_dttm", TIMESTAMP(), server_default=text('to_timestamp(0)'), nullable=False, index=True),
