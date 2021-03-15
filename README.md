@@ -7,14 +7,14 @@ vulnerability assessment and bug reporting within the [University of São Paulo]
 
 ## Usage
 
-To run the PostgreSQL Database:
+During first-time usage, start the Alembic docker module to update and version databases:
 ```
-docker-compose up -d postgres
-```
-
-And to run the subsequent recon/scanning VuMoS modules: 
-```
-docker-compose up 
+docker-compose up alembic
 ```
 
+And to run the subsequent recon/attack VuMoS modules: 
+```
+docker-compose up -d
+```
 
+2021 © IMEsec
