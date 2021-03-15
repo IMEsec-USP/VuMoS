@@ -6,6 +6,7 @@ from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 from urllib.parse import urlparse
 
 import os
+import logging
 import sqlalchemy
 import sqlalchemy.orm
 from time import sleep
@@ -65,6 +66,11 @@ class HDBSpider(CrawlSpider):
 					"redo_in": {
 						"weeks": 1,
 						"days": 0
+					},
+					"sleep": {
+						"seconds": 0,
+						"minutes": 0,
+						"hours": 1
 					}
 				}
 			)
@@ -77,7 +83,9 @@ class HDBSpider(CrawlSpider):
 			redo_in = config["redo_in"]
 			aux = self.crawler_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
 			if aux is None:
-				sleep(60*60)
+				logging.warning(f"no target to scan")
+				seconds = config["sleep"]["seconds"] + 60*config["sleep"]["minutes"] + 3600*config["sleep"]["hours"]
+				sleep(seconds)
 				continue
 			url = aux.path.url
 			yield scrapy.Request(url, self.parse)

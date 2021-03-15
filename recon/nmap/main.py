@@ -49,6 +49,11 @@ def main():
 					"weeks": 1,
 					"days": 0
 				},
+				"sleep": {
+					"seconds": 0,
+					"minutes": 0,
+					"hours": 1
+				},
 				"outputfile": "nmap.xml"
 			}
 		)
@@ -62,12 +67,15 @@ def main():
 	)
 
 	while True:
-		wait = controller.execute()
-
-		session.commit()
-
-		if wait:
-			sleep(60*60)
+		status = controller.run()
+		if status == 0:
+			session.commit()
+		elif status == 1:
+			logger.warning(f"no target to scan")
+			seconds = config["sleep"]["seconds"] + 60*config["sleep"]["minutes"] + 3600*config["sleep"]["hours"]
+			sleep(seconds)
+		else:
+			break
 
 if __name__ == '__main__':
 	main()

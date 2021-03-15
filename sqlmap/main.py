@@ -1,6 +1,7 @@
 import os
 import logging
 import sqlalchemy
+from time import sleep
 
 from commons.alchemyrepository import \
 	ConfigRepository, \
@@ -68,6 +69,10 @@ def main():
 		status = controller.run()
 		if status == 0:
 			session.commit()
+		elif status == 1:
+			logger.warning(f"no target to scan")
+			seconds = config["sleep"]["seconds"] + 60*config["sleep"]["minutes"] + 3600*config["sleep"]["hours"]
+			sleep(seconds)
 		else:
 			break
 
