@@ -35,11 +35,11 @@ def main():
 	host_repository = HostRepository(session)
 	path_repository = PathRepository(session)
 
-	config = config_repository.get_by_name("Amas")
+	config = config_repository.get_by_name("Amass")
 	if config is None:
-		logger.warning("Amas config not found, creating default")
+		logger.warning("Amass config not found, creating default")
 		config = Config(
-			name="Amas",
+			name="Amass",
 			config={
 				"targets": []
 			}
