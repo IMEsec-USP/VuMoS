@@ -1,13 +1,12 @@
 import os
 import logging
 import sqlalchemy
-import sqlalchemy.orm
 from time import sleep
 
 from commons.alchemyrepository import \
 	ConfigRepository, \
-	MachineRepository, \
-	NmapRepository
+	VulnerabilityRepository, \
+	SqlmapRepository
 
 from commons.domain.models import Config
 
@@ -15,11 +14,11 @@ from src import Controller
 
 def main():
 	logging.basicConfig(
-	    filename="logs/nmap.log",
+	    filename="logs/sqlmap.log",
 		level=logging.INFO,
 		format='%(asctime)s %(levelname)s:%(message)s'
 	)
-	logger = logging.getLogger("NMAP")
+	logger = logging.getLogger("SQLMAP")
 	logger.addHandler(logging.StreamHandler())
 	engine = sqlalchemy.create_engine(
 		'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'.format(
@@ -35,36 +34,36 @@ def main():
 	session = session_maker(autoflush=False)
 
 	config_repository = ConfigRepository(session)
-	machine_repository = MachineRepository(session)
-	nmap_repository = NmapRepository(session)
+	vulnerability_repository = VulnerabilityRepository(session)
+	sqlmap_repository = SqlmapRepository(session)
 
-	config = config_repository.get_by_name("Nmap")
+	controller = Controller(
+		config_repository= config_repository,
+		vulnerability_repository=vulnerability_repository,
+		sqlmap_repository=sqlmap_repository,
+		logger=logger
+	)
+
+	config = config_repository.get_by_name("Sqlmap")
 	if config is None:
-		logger.error("Nmap config not found, creating default")
+		logger.error("Sqlmap config not found, creating default")
 		config = Config(
-			name="Nmap",
+			name="Sqlmap",
 			config={
-				"run":"nmap -p- -sV --version-all -A -sC -f -O -oX {outputfile} -Pn {target}",
-				"redo_in": {
-					"weeks": 1,
-					"days": 0
-				},
 				"sleep": {
 					"seconds": 0,
 					"minutes": 0,
 					"hours": 1
 				},
+				"redo_in": {
+					"weeks": 1,
+					"days": 0
+				},
 				"outputfile": "nmap.xml"
 			}
 		)
 		config = config_repository.add(config)
-
-	controller = Controller(
-		config= config.config,
-		machine_repository=machine_repository,
-		nmap_repository=nmap_repository,
-		logger=logger
-	)
+		session.commit()
 
 	while True:
 		status = controller.run()

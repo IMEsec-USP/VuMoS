@@ -2,48 +2,48 @@ from abc import ABC, abstractmethod
 from typing import Optional, List
 
 from commons.domain.models import \
-	Crawler, \
 	Host, \
-	Path
+	Path, \
+	Sqlmap
 
-class CrawlerRepository(ABC):
+class SqlmapRepository(ABC):
 
 	@abstractmethod
 	def get_by_path(self,
-					path: Path) -> Crawler:
+					path: Path) -> Sqlmap:
 		raise NotImplementedError()
 
 	@abstractmethod
 	def get_by_host(self,
-					host: Host) -> List[Crawler]:
+					host: Host) -> List[Sqlmap]:
 		raise NotImplementedError()
 
 	@abstractmethod
 	def get_by_url(self,
-				   url: str) -> Crawler:
+				   url: str) -> Sqlmap:
 		raise NotImplementedError()
 
 	@abstractmethod
 	def get_by_domain(self,
-					  domain: str) -> List[Crawler]:
+					  domain: str) -> List[Sqlmap]:
 		raise NotImplementedError()
 
 	@abstractmethod
 	def get_next(self, 
 				 weeks: Optional[int] = 0,
-				 days: Optional[int] = 0) -> Crawler:
+				 days: Optional[int] = 0) -> Sqlmap:
 		raise NotImplementedError()
 
 	@abstractmethod
-	def add_paths_to_crawler(self):
+	def add_paths_to_sqlmap(self):
 		raise NotImplementedError()
 
 	@abstractmethod
 	def add(self,
-			crawler: Crawler) -> Crawler:
+			sqlmap: Sqlmap) -> Sqlmap:
 		raise NotImplementedError()
 
 	@abstractmethod
 	def update(self,
-			   crawler: Crawler) -> Crawler:
+			   sqlmap: Sqlmap) -> Sqlmap:
 		raise NotImplementedError()
