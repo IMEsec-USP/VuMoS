@@ -38,12 +38,12 @@ services:
             - DB_HOST=${DB_HOST}
             - DB_PORT=${DB_PORT}
         volumes:
-            - ${SRC_PATH}/recon/amass/main.py:/home/amass/main.py
-            - ${SRC_PATH}/recon/amass/requirements.txt:/home/amass/requirements.txt
-            - ${SRC_PATH}/recon/amass/src:/home/amass/src
+            - ${SRC_PATH}/amass/main.py:/home/amass/main.py
+            - ${SRC_PATH}/amass/requirements.txt:/home/amass/requirements.txt
+            - ${SRC_PATH}/amass/src:/home/amass/src
             - ${SRC_PATH}/commons:/home/amass/commons
             - ${CONTEXT_PATH}/amass/docker-entrypoint.sh:/home/amass/docker-entrypoint.sh
-            - ${CONTEXT_PATH}/logs/amass:/home/amass/logs
+            - /logs/amass:/home/amass/logs
         depends_on:
             - postgres
         networks:
@@ -75,12 +75,12 @@ services:
             - DB_HOST=${DB_HOST}
             - DB_PORT=${DB_PORT}
         volumes:
-            - ${SRC_PATH}/recon/nmap/main.py:/home/nmap/main.py
-            - ${SRC_PATH}/recon/nmap/requirements.txt:/home/nmap/requirements.txt
+            - ${SRC_PATH}/nmap/main.py:/home/nmap/main.py
+            - ${SRC_PATH}/nmap/requirements.txt:/home/nmap/requirements.txt
             - ${SRC_PATH}/commons:/home/nmap/commons
-            - ${SRC_PATH}/recon/nmap/src:/home/nmap/src
+            - ${SRC_PATH}/nmap/src:/home/nmap/src
             - ${CONTEXT_PATH}/nmap/docker-entrypoint.sh:/home/nmap/docker-entrypoint.sh
-            - ${CONTEXT_PATH}/logs/nmap:/home/nmap/logs
+            - /logs/nmap:/home/nmap/logs
         depends_on:
             - postgres
         networks:
@@ -112,7 +112,7 @@ services:
             - DB_HOST=${DB_HOST}
             - DB_PORT=${DB_PORT}
         volumes:
-            - ${CONTEXT_PATH}/logs/sqlmap:/home/sqlmap/logs
+            - /logs/sqlmap:/home/sqlmap/logs
         depends_on:
             - postgres
         networks:
