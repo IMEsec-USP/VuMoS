@@ -59,8 +59,8 @@ services:
 
     nmap:
         build:
-            context: ${CONTEXT_PATH}/nmap
-            dockerfile: Dockerfile
+            context: ${SRC_PATH}
+            dockerfile: nmap/Dockerfile
         environment:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
@@ -68,11 +68,6 @@ services:
             - DB_HOST=${DB_HOST}
             - DB_PORT=${DB_PORT}
         volumes:
-            - ${SRC_PATH}/nmap/main.py:/home/nmap/main.py
-            - ${SRC_PATH}/nmap/requirements.txt:/home/nmap/requirements.txt
-            - ${SRC_PATH}/commons:/home/nmap/commons
-            - ${SRC_PATH}/nmap/src:/home/nmap/src
-            - ${CONTEXT_PATH}/nmap/docker-entrypoint.sh:/home/nmap/docker-entrypoint.sh
             - ./logs/nmap:/home/nmap/logs
         depends_on:
             - postgres
