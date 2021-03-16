@@ -8,8 +8,8 @@ networks:
 services:
     alembic:
         build:
-            context: ${CONTEXT_PATH}/alembic
-            dockerfile: Dockerfile
+            context: ${SRC_PATH}
+            dockerfile: alembic/Dockerfile
         environment:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
@@ -17,9 +17,7 @@ services:
             - DB_HOST=${DB_HOST}
             - DB_PORT=${DB_PORT}
         volumes:
-            - ${SRC_PATH}/alembic:/home/alembic/alembic
-            - ${SRC_PATH}/commons:/home/alembic/commons
-            - ${CONTEXT_PATH}/alembic/docker-entrypoint.sh:/home/alembic/docker-entrypoint.sh
+            - ${SRC_PATH}/alembic/alembic/versions:/home/alembic/alembic/versions
         links:
             - postgres
         depends_on:
@@ -88,7 +86,7 @@ services:
 
     postgres:
         build:
-            context: ${CONTEXT_PATH}/postgres
+            context: ${SRC_PATH}/postgres
             dockerfile: Dockerfile
         environment:
             - POSTGRES_USER=${DB_USER}
