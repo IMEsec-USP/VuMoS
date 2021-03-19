@@ -15,6 +15,7 @@ RUN apt-get install postgresql-client -y
 WORKDIR /home/alembic
 
 COPY alembic/alembic/env.py alembic/env.py
+COPY alembic/alembic/script.py.mako alembic/script.py.mako
 COPY alembic/alembic.ini ./alembic.ini
 
 COPY alembic/requirements.txt ./requirements.txt
