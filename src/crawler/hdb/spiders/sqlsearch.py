@@ -39,6 +39,11 @@ class HDBSpider(CrawlSpider):
 		allow=('\?'), canonicalize=True, unique=True, allow_domains="usp.br")
 
 	def __init__(self):
+
+		self.code_logger = logging.getLogger("Crawler")
+		self.code_logger.addHandler(logging.StreamHandler())
+		self.code_logger.addHandler(logging.FileHandler('/app/logs/crawler.log'))
+
 		super(HDBSpider, self).__init__()
 		alchemy_engine = sqlalchemy.create_engine(
 			'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'.format(
@@ -83,22 +88,23 @@ class HDBSpider(CrawlSpider):
 			redo_in = config["redo_in"]
 			aux = self.crawler_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
 			if aux is None:
-				logging.warning(f"no target to scan")
+				self.code_logger.warning(f"no target to scan")
 				seconds = config["sleep"]["seconds"] + 60*config["sleep"]["minutes"] + 3600*config["sleep"]["hours"]
 				sleep(seconds)
 				continue
 			url = aux.path.url
+			self.code_logger.info(f"starting crawler to {url}")
 			yield scrapy.Request(url, self.parse)
 			aux.updated_dttm = datetime.now()
 			self.crawler_repository.update(aux)
 			self.db_session.commit()
 
 	def parse(self, response):
-		
 		machine = Machine(ip=str(response.ip_address))
 		machine = self.machine_repository.safe_add(machine)
+		self.code_logger.debug(f"machine {machine.ip} found")
+		actions = set()
 		for form in response.css('form'):
-			
 			extracted_stuff = {
 				'inputs': [
 					{
@@ -112,23 +118,25 @@ class HDBSpider(CrawlSpider):
 				'method': form.xpath('@method').extract_first(),
 
 				}
-			
 			method = extracted_stuff["method"] if extracted_stuff["method"] else "get"
 
 			if extracted_stuff["action"] and extracted_stuff["inputs"]:
 				resolved_action = response.urljoin(extracted_stuff["action"])
-				host = Host(
-					domain=urlparse(resolved_action).netloc,
-					machines=[machine]
-				)
-				host = self.host_repository.safe_add(host)
-				path = Path(
-					url=resolved_action,
-					host=host,
-					method=method,
-					vars=extracted_stuff["inputs"]
-				)
-				path = self.path_repository.safe_add(path)
+				if method+resolved_action not in actions:
+					actions.add(method+resolved_action)
+					host = Host(
+						domain=urlparse(resolved_action).netloc,
+						machines=[machine]
+					)
+					host = self.host_repository.safe_add(host)
+					path = Path(
+						url=resolved_action,
+						host=host,
+						method=method,
+						vars=extracted_stuff["inputs"]
+					)
+					path = self.path_repository.safe_add(path)
+					self.code_logger.info(f"found {resolved_action}")
 
 		for link in self.dynlink_extractor.extract_links(response):
 			link_base = link.url.split('?')[0]
@@ -155,5 +163,6 @@ class HDBSpider(CrawlSpider):
 				vars=var
 			)
 			path = self.path_repository.safe_add(path)
+			self.code_logger.info(f"found {link_base}")
 
 		self.db_session.commit()
