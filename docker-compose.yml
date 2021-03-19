@@ -45,15 +45,13 @@ services:
     crawler:
         build:
             context: ${SRC_PATH}
-            dockerfile: crawler/Dockerfile
+            dockerfile: ${SRC_PATH}/crawler/Dockerfile
         environment:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
             - DB_NAME=${DB_NAME}
             - DB_HOST=${DB_HOST}
             - DB_PORT=${DB_PORT}
-        volumes:
-            - ./logs/crawler:/app/logs
         depends_on:
             - postgres
         networks:
@@ -94,7 +92,7 @@ services:
     sqlmap:
         build:
             context: ${SRC_PATH}
-            dockerfile: sqlmap/Dockerfile
+            dockerfile: ${SRC_PATH}/sqlmap/Dockerfile
         environment:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
