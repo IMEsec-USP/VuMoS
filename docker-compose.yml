@@ -45,7 +45,7 @@ services:
     crawler:
         build:
             context: ${SRC_PATH}
-            dockerfile: ${SRC_PATH}/crawler/Dockerfile
+            dockerfile: crawler/Dockerfile
         environment:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
@@ -92,7 +92,7 @@ services:
     sqlmap:
         build:
             context: ${SRC_PATH}
-            dockerfile: ${SRC_PATH}/sqlmap/Dockerfile
+            dockerfile: sqlmap/Dockerfile
         environment:
             - DB_USER=${DB_USER}
             - DB_PASS=${DB_PASS}
