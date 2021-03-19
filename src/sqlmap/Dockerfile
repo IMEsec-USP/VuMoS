@@ -1,5 +1,8 @@
 FROM python:3.7
 
+LABEL version="1.0.0"
+LABEL mantainer="imesec@ime.usp.br"
+
 COPY sqlmap/main.py sqlmap/requirements.txt /home/sqlmap/
 
 WORKDIR /home/sqlmap

@@ -11,4 +11,14 @@ RUN mkdir /home/nmap
 
 WORKDIR /home/nmap
 
+COPY nmap/main.py nmap/requirements.txt nmap/docker-entrypoint.sh ./
+
+RUN pip install -r requirements.txt
+
+COPY nmap/src ./src
+
+COPY commons ./commons
+
+RUN pip install -r commons/requirements.txt
+
 ENTRYPOINT ["./docker-entrypoint.sh"]

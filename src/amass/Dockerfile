@@ -1,5 +1,8 @@
 FROM caffix/amass as build
 
+LABEL version="1.0.0"
+LABEL mantainer="imesec@ime.usp.br"
+
 RUN mkdir /home/amass
 
 RUN apk add --update python3 && \
@@ -15,5 +18,15 @@ RUN apk add libc-dev && \
 	apk add gcc
 
 WORKDIR /home/amass
+
+COPY amass/main.py amass/requirements.txt amass/docker-entrypoint.sh ./
+
+RUN pip install -r requirements.txt
+
+COPY amass/src ./src
+
+COPY commons ./commons
+
+RUN pip install -r commons/requirements.txt
 
 ENTRYPOINT ["/home/amass/docker-entrypoint.sh"]
