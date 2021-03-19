@@ -4,22 +4,27 @@ from datetime import datetime
 from subprocess import run, PIPE
 
 from commons.domain.models import \
-	Sqlmap
+	Sqlmap, \
+	Vulnerability, \
+	VulnerabilityStatusEnum
 
 from commons.domain.repository import \
 	ConfigRepository, \
 	SqlmapRepository, \
-	VulnerabilityRepository
+	VulnerabilityRepository, \
+	VulnerabilityTypeRepository
 
 class Controller(object):
 	def __init__(self,
 				 config_repository: ConfigRepository,
-				 vulnerability_repository: VulnerabilityRepository,
 				 sqlmap_repository: SqlmapRepository,
+				 vulnerability_repository: VulnerabilityRepository,
+				 vulnerability_type_repository: VulnerabilityTypeRepository,
 				 logger: Logger):
 		self.config_repository = config_repository
-		self.vulnerability_repository = vulnerability_repository
 		self.sqlmap_repository = sqlmap_repository
+		self.vulnerability_repository = vulnerability_repository
+		self.vulnerability_type_repository = vulnerability_type_repository
 		self.logger = logger
 
 	def run(self):
@@ -65,9 +70,15 @@ class Controller(object):
 		sqlmap_command.append('--disable-coloring')
 		result = run(sqlmap_command, stdout=PIPE)
 		
+		sql_injection = self.vulnerability_type_repository.get_by_name("SQL injection")
+		vulnerability = self.vulnerability_repository.get_by(path=sqlmap.path, type=sql_injection)
 		if b'all tested parameters do not appear to be injectable.' in result.stdout:
 			sqlmap.clear = True
 			sqlmap.updated_dttm = datetime.now()
+			if vulnerability:
+				vulnerability.status = VulnerabilityStatusEnum(3)
+				vulnerability.solved_dttm = datetime.now()
+				self.vulnerability_repository.update(vulnerability)
 		else:
 			injectable_str = result.stdout.split(b'\n---\n')[1].decode()
 			parameter_reg = re.search(r'(\s*Parameter: )(.+)( \((.+)\))', injectable_str.split('\n')[0])
@@ -85,4 +96,23 @@ class Controller(object):
 				})
 			sqlmap.output = output
 			sqlmap.updated_dttm = datetime.now()
+			if vulnerability:
+				vulnerability.status = VulnerabilityStatusEnum(2)
+				if vulnerability.confirmed_by is None:
+					vulnerability.confirmed_by = 'sqlmap'
+					vulnerability.confirmed_dttm = datetime.now()
+				vulnerability.solved_dttm = None
+				vulnerability.updated_dttm = datetime.now()
+				self.vulnerability_repository.update(vulnerability)
+			else:
+				vulnerability = Vulnerability(
+					type=sql_injection,
+					status=VulnerabilityStatusEnum(2),
+					found_by='sqlmap',
+					found_dttm=datetime.now(),
+					confirmed_by='sqlmap',
+					confirmed_dttm=datetime.now(),
+					path=sqlmap.path
+				)
+				self.vulnerability_repository.add(vulnerability)
 		self.sqlmap_repository.update(sqlmap)
