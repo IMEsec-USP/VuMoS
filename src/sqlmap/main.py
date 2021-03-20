@@ -5,8 +5,9 @@ from time import sleep
 
 from commons.alchemyrepository import \
 	ConfigRepository, \
+	SqlmapRepository, \
 	VulnerabilityRepository, \
-	SqlmapRepository
+	VulnerabilityTypeRepository
 
 from commons.domain.models import Config
 
@@ -34,13 +35,15 @@ def main():
 	session = session_maker(autoflush=False)
 
 	config_repository = ConfigRepository(session)
-	vulnerability_repository = VulnerabilityRepository(session)
 	sqlmap_repository = SqlmapRepository(session)
+	vulnerability_repository = VulnerabilityRepository(session)
+	vulnerability_type_repository = VulnerabilityTypeRepository(session)
 
 	controller = Controller(
-		config_repository= config_repository,
-		vulnerability_repository=vulnerability_repository,
+		config_repository=config_repository,
 		sqlmap_repository=sqlmap_repository,
+		vulnerability_repository=vulnerability_repository,
+		vulnerability_type_repository = vulnerability_type_repository,
 		logger=logger
 	)
 
