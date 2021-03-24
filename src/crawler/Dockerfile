@@ -17,6 +17,10 @@ RUN pip install -r commons/requirements.txt
 
 COPY crawler/docker-entrypoint.sh /app/
 
+COPY crawler/logging.yaml /app/
+
+COPY crawler/main.py /app/
+
 COPY crawler/hdb /app/hdb
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
