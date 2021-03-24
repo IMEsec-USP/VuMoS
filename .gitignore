@@ -18,7 +18,7 @@ data/*
 *.o
 
 # logs
-*.log
+*.log*
 
 # caches
 *__pycache__
