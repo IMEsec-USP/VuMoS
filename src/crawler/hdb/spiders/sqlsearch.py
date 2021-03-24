@@ -14,7 +14,6 @@ import yaml
 from datetime import datetime
 
 from commons.domain.models import \
-	Config, \
 	Host, \
 	Machine, \
 	Path
@@ -63,7 +62,6 @@ class HDBSpider(CrawlSpider):
 		self.path_repository = PathRepository(self.db_session)
 		self.machine_repository = MachineRepository(self.db_session)
 		self.config_repository = ConfigRepository(self.db_session)
-		config = self.config_repository.get_by_name("Crawler")
 
 	def start_requests(self):
 		while True:
@@ -72,7 +70,7 @@ class HDBSpider(CrawlSpider):
 			redo_in = config["redo_in"]
 			aux = self.crawler_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
 			if aux is None:
-				self.code_logger.debug('staring crawler')
+				self.code_logger.info('staring crawler')
 				break
 			url = aux.path.url
 			self.code_logger.debug(f"add to queue {url}")

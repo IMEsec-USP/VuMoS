@@ -54,6 +54,7 @@ def main():
 
 
 	while True:
+		logger.info(f"starting")
 		redo_in = config_repository.get_by_name("Crawler").config['redo_in']
 		crawler_repository.add_paths_to_crawler()
 		aux = crawler_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
