@@ -64,9 +64,10 @@ class HDBSpider(CrawlSpider):
 		self.config_repository = ConfigRepository(self.db_session)
 
 	def start_requests(self):
+		self.crawler_repository.add_paths_to_crawler()
+		self.db_session.commit()
 		while True:
 			config = self.config_repository.get_by_name("Crawler").config
-			self.crawler_repository.add_paths_to_crawler()
 			redo_in = config["redo_in"]
 			aux = self.crawler_repository.get_next(weeks=redo_in["weeks"], days=redo_in["days"])
 			if aux is None:
