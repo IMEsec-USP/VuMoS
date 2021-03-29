@@ -37,6 +37,7 @@ services:
             - DB_PORT=${DB_PORT}
         volumes:
            - ./logs/amass:/home/amass/logs
+           - ./data/amass/outputs:/home/amass/outputs
         depends_on:
             - postgres
         networks:

@@ -1,6 +1,7 @@
 import json
 import requests
 import subprocess
+from datetime import date
 from logging import Logger
 from difflib import SequenceMatcher
 from typing import List
@@ -33,7 +34,7 @@ class Controller(object):
 
             self.logger.info(f"running amass to {root}")
 
-            OUTPUT_PATH = "output.json"
+            OUTPUT_PATH = f"outputs/{date.today()}.json"
             parameter = ["amass", "enum", "-src", "-noalts", "-d", root, "-json", OUTPUT_PATH, "-log", "logs/amass.log"]
             stdout = subprocess.run(parameter, stdout=subprocess.PIPE).stdout.decode("utf-8")
 
