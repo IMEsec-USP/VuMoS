@@ -1,9 +1,11 @@
 import json
 import requests
 import subprocess
+import urllib3
 from datetime import date
 from logging import Logger
 from difflib import SequenceMatcher
+from retry import retry
 from typing import List
 
 from commons.domain.models import \
@@ -29,18 +31,24 @@ class Controller(object):
         self.targets = targets
         self.logger = logger
 
+    
+    @retry(requests.exceptions.ConnectionError, tries=10, delay=1) 
+    def make_wildcard_request(self, domain):
+        return requests.get(f'http://asdfewcregonqwnsd.{domain}')
+
     def execute(self):
         for root in self.targets:
 
             self.logger.info(f"running amass to {root}")
 
             OUTPUT_PATH = f"outputs/{date.today()}.json"
+            
             parameter = ["amass", "enum", "-src", "-noalts", "-d", root, "-json", OUTPUT_PATH, "-log", "logs/amass.log"]
             stdout = subprocess.run(parameter, stdout=subprocess.PIPE).stdout.decode("utf-8")
 
             self.logger.debug(f"-----------String de output do amass:-----------\n{stdout}\n------------------------------------------------")
 
-            test_requests_cache = {}
+            wildcard_cache = {}
             machines_cache = {}
 
             with open(OUTPUT_PATH, "r") as result:
@@ -67,19 +75,28 @@ class Controller(object):
                     if subdomain != root:
                         domain = '.'.join(subdomain.split('.')[1:])
                         
-                        base_request = test_requests_cache.get(domain)
-                        if base_request is None:
-                            base_request = requests.get(f'http://asdfewcregonqwnsd.{domain}')
-                            test_requests_cache[domain] = base_request
+                        wildcard_request = wildcard_cache.get(domain, "Unknown")
+                        if wildcard_request == "Unknown":
+                            try:
+                                wildcard_request = self.make_wildcard_request(domain)
+                                wildcard_cache[domain] = wildcard_request
 
-                        try :
+                            except urllib3.exceptions.MaxRetryError: # If error catch fails, try requests.packages.urllib3.exceptions.MaxRetryError
+                                wildcard_request = None
+                                wildcard_cache[domain] = wildcard_request
+
+                            except requests.exceptions.ConnectionError: # Failed all retries defined in function
+                                line = result.readline()
+                                continue    
+
+                        try:
                             r = requests.get(f"http://{subdomain}")
                             if r.status_code >= 500 or r.status_code < 400:
                                 host = Host(
                                     domain=subdomain,
                                     machines=machines
                                 )
-                                if base_request.status_code != r.status_code or SequenceMatcher(None, base_request.content, r.content).ratio() < 0.8:
+                                if wildcard_request == None or wildcard_request.status_code != r.status_code or SequenceMatcher(None, wildcard_request.content, r.content).ratio() < 0.8:
                                     self.logger.debug(f"adding db_host to {subdomain}")
                                     host = self.host_repository.safe_add(host)
                                     path = Path(
@@ -93,7 +110,7 @@ class Controller(object):
                         except requests.exceptions.RequestException:
                             pass
                     else:
-                        try :
+                        try:
                             r = requests.get(f"http://{subdomain}")
                             if r.status_code >= 500 or r.status_code < 400:
                                 host = Host(
