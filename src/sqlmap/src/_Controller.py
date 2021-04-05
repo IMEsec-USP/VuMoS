@@ -51,6 +51,8 @@ class Controller(object):
 		sqlmap_command = ['sqlmap', '-u']
 		sqlmap_urlstring = entry.url+'?'
 		for var in entry.vars:
+			if re.search(r'\A9{3,}', var['value']):
+				var['value'] = '1'
 			if not 'type' in var: # if there is no type, its a querystring url
 				sqlmap_urlstring += f"{var['name']}={var['value'] if var['value'] else 'a'}&"
 		sqlmap_command.append(sqlmap_urlstring[:-1])
@@ -64,15 +66,19 @@ class Controller(object):
 		
 		sqlmap_command.append('--threads=1')
 		sqlmap_command.append('--level=5')
-		sqlmap_command.append('--smart')
+		# sqlmap_command.append('--smart') # no, smart is actually pretty dumb
 		sqlmap_command.append('--technique=BEUSTQ')
 		sqlmap_command.append('--batch')
 		sqlmap_command.append('--disable-coloring')
 		result = run(sqlmap_command, stdout=PIPE)
+
+		self.logger.debug(result.stdout)
 		
 		sql_injection = self.vulnerability_type_repository.get_by_name("SQL injection")
 		vulnerability = self.vulnerability_repository.get_by(path=sqlmap.path, type=sql_injection)
-		if b'all tested parameters do not appear to be injectable.' in result.stdout:
+		if vulnerability:
+			vulnerability = vulnerability[0]
+		if b'sqlmap identified the following injection point' not in result.stdout:
 			sqlmap.clear = True
 			sqlmap.updated_dttm = datetime.now()
 			if vulnerability:

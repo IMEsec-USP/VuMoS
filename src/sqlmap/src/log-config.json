@@ -10,7 +10,7 @@
       "level": "DEBUG",
       "formatter": "defaultFormatter",
       "class": "logging.handlers.RotatingFileHandler",
-      "filename": "./log/api_accounting.log",
+      "filename": "./log/sqlmap.log",
       "maxBytes": 5242880,
       "backupCount": 5,
       "encoding": "utf-8"
