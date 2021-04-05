@@ -41,7 +41,7 @@ def main():
 		config = Config(
 			name="Amass",
 			config={
-				"targets": []
+                            "targets": []
 			}
 		)
 		config = config_repository.add(config)
@@ -53,7 +53,6 @@ def main():
 		logger.critical("no target given")
 		exit(1)
 
-
 	controller = Controller(
 		host_repository=host_repository,
 		machine_repository=machine_repository,
@@ -63,6 +62,7 @@ def main():
 	)
 	controller.execute()
 
+	logger.info("Finishing up migration process...")
 	session.commit()
 
 if __name__ == '__main__':
