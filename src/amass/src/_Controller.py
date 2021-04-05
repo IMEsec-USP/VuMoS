@@ -81,7 +81,7 @@ class Controller(object):
                                 wildcard_request = self.make_wildcard_request(domain)
                                 wildcard_cache[domain] = wildcard_request
 
-                            except urllib3.exceptions.MaxRetryError: # If error catch fails, try requests.packages.urllib3.exceptions.MaxRetryError
+                            except urllib3.exceptions.MaxRetryError:
                                 wildcard_request = None
                                 wildcard_cache[domain] = wildcard_request
 
