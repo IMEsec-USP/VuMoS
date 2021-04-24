@@ -26,4 +26,4 @@ to hide docker logs during the VuMoS usage.
 
 
 <br>
-2021 © STI USP
+2021 © Hackers Do Bem USP
